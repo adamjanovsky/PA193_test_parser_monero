@@ -1,0 +1,5 @@
+# Executables
+bin/**
+
+# Mac specific files
+.DS_Store
