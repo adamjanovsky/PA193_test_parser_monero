@@ -1,3 +1,3 @@
-# PA193-MoneroParser
+# Test Monero Parser
 
 Monero cryptocurrency parser.
