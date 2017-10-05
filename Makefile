@@ -16,4 +16,7 @@ test:
 	# Clean up
 	make clean -C $(TEST_DIR)
 
+check:
+	cppcheck --enable=all --inconclusive --std=posix src
+
 .PHONY: clean test
