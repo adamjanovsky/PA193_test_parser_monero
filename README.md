@@ -1,6 +1,6 @@
 # Test Monero Parser
 
-Monero cryptocurrency parser.
+Monero cryptocurrency parser. The repository is a product of PA193 seminar on FI MUNI. The purpose of the code is to check whether given Monero block is valid, as well as to check the validity of transcations within.
 
 ## Notes on Testing
 
