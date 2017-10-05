@@ -1,3 +1,5 @@
+![Travis CI build info](https://travis-ci.org/adamjanovsky/PA193_test_parser_monero.svg?branch=master)
+
 # Test Monero Parser
 
 Monero cryptocurrency parser. The repository is a product of PA193 seminar on FI MUNI. The purpose of the code is to check whether given Monero block is valid, as well as to check the validity of the transcations within.
