@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
+#include <inttypes.h>
 
 #include "src/MicroCore.h"
 #include "src/CmdLineOptions.h"
 #include "src/tools.h"
+#include "crypto/crypto.h"
+
+
 
 
 using namespace std;
@@ -81,10 +85,59 @@ int main(int ac, const char* av[])
     // get the current blockchain height. Just to check
     // if it reads ok.
     uint64_t height = core_storage->get_current_blockchain_height();
-
     cout << "Current blockchain height: " << height << endl;
 
+    // Here begins the actual stuff that happens
 
+    cryptonote::block  bl;
+    cryptonote::blobdata data;
+    //mcore.get_block_by_height(1002920, bl); // this fills the block structure with the data
+
+
+
+
+    // The following snipper gets the block raw data by height and prints it
+    if(!mcore.get_block_blob_by_height(1002920, data))
+    {
+        std::cout << "Error when getting block bytes.\n";
+    }
+    uint8_t *blockData = (uint8_t *) malloc(data.length() * sizeof(uint8_t));
+    memcpy(blockData, data.data(), data.length());
+
+    std::cout << "The block bytes are: ";
+    for(int i = 0; i < data.length(); i++)
+    {
+        printf("%02x", blockData[i]);
+    }
+
+
+
+    // The following snippet computes the hash of the raw block data, there must be some mistake, as the hash doesn't match the one found online
+    crypto::hash h = crypto::cn_fast_hash(blockData, data.length());
+    std::cout << "\n\nThe hash is: " << h << std::endl;
+
+
+    // The following snippet finds the block by its hash, copies its raw data and prints it
+    crypto::hash tx_hash;
+    std::string hash_str = "f7b128b3eedfed153e2f5ab77e959a23267d287e542b64cf52922ed506069427";
+    parse_hash256(hash_str, tx_hash);
+
+    if(!mcore.get_block_blob_by_hash(tx_hash, data))
+    {
+        std::cout << "Error when getting block blob by hash.\n";
+    }
+    printf("\n\n");
+
+    memcpy(blockData, data.data(), data.length());
+    for(int i = 0; i < data.length(); i++)
+    {
+        printf("%02x", blockData[i]);
+    }
+
+
+    // Below is the original content of main file
+
+    /*
     // parse string representing given monero address
     cryptonote::account_public_address address;
 
@@ -201,6 +254,7 @@ int main(int ac, const char* av[])
 
 
     cout << "\nEnd of program." << endl;
+    */
 
     return 0;
 }
