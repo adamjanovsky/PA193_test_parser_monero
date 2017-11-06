@@ -31,7 +31,7 @@ void hash::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) 
     // Check buf_len
     // - each hash is 32 bytes-long => buf_len must be a multiple of 32
     if (buf_len <= 0 || buf_len % 32 != 0) {
-        printf("TreeHash: Invalid input.");
+        std::cerr << "TreeHash: Invalid input." << std::endl;
         exit(1);
     }
         

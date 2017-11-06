@@ -13,6 +13,7 @@ test:
 	make -C $(TEST_DIR)
 	# Run tests
 	$(TEST_DIR)/testable_test
+	$(TEST_DIR)/hash_test
 	# Clean up
 	make clean -C $(TEST_DIR)
 

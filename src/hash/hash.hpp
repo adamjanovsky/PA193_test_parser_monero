@@ -29,7 +29,7 @@ namespace hash {
      @param buf_len length of the hash buffer (=> must be a multiple of 32)
      @param root_hash where to store the root hash (32 bytes, needs to be allocated beforehand!)
      */
-    void tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash);
+    void tree_hash(const char *hash_buffer, size_t buf_len, char *root_hash);
 }
 
 #endif /* hash_hpp */
