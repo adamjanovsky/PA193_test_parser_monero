@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <cstring>
 #include "Keccak-readable-and-compact.h"
 #include "hash.hpp"
 #include "config.h"
