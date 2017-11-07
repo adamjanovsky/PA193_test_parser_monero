@@ -11,6 +11,7 @@
 #include "keccak/Keccak-readable-and-compact.h"
 #include "tools.hpp"
 #include "config.hpp"
+#include "error.hpp"
 
 
 int tools::skip_varint(std::istream & in) {
@@ -33,23 +34,27 @@ void tools::hash(const char *input, size_t input_byte_len, char *output) {
     Keccak(rate, capacity, u_input, input_byte_len, delimited_suffix, u_output, output_length);
 }
 
-void tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
+int tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
     
-    // @TODO chech for nullptr
+    // Check for null in/out buffers
+    if (!hash_buffer || !root_hash || hash_buffer == nullptr || root_hash == nullptr) {
+        std::cerr << "TreeHash: Uninitialized in or out buffer." << std::endl;
+        return ERR_THASH_NULL_INPUT;
+    }
     
     // Check buf_len
     // - each hash is 32 bytes-long => buf_len must be a multiple of 32
     if (buf_len <= 0 || buf_len % 32 != 0) {
-        std::cerr << "TreeHash: Invalid input." << std::endl;
-        exit(1);
+        std::cerr << "TreeHash: Invalid input length." << std::endl;
+        return ERR_THASH_INVALID_IN_LEN;
     }
         
     // Calculate the hash count and check it for sanity
     // - bound of 0x10000000 is included in the original Monero function
     size_t hash_count = buf_len / 32;
     if (hash_count <= 0 || hash_count > 0x10000000) {
-        printf("TreeHash: Invalid input.");
-        exit(1);
+        std::cerr << "TreeHash: Invalid input length." << std::endl;
+        return ERR_THASH_INVALID_IN_LEN;
     }
     
     // Reintepret the hash_buffer as array of 32 byte-long hashes
@@ -59,11 +64,11 @@ void tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash)
         case 1:
             // Just copy the single hash into the root_hash
             memcpy(root_hash, hashes, HASH_SIZE);
-            return;
+            return OK;
         case 2:
             // Just hash the two hashes and put the result into root_hash
             hash(hashes[0], 2 * HASH_SIZE, root_hash);
-            return;
+            return OK;
             
         default:
             // Hashes passed to this function are treated as tree leaves
@@ -79,8 +84,8 @@ void tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash)
             size_t nodes_size = int_nodes_count * HASH_SIZE;
             nodes = reinterpret_cast<char (*)[32]>(new(std::nothrow) char[nodes_size]);
             if (nodes == nullptr) {
-                printf("TreeHash: Out of memory.");
-                exit(1);
+                std::cerr << "TreeHash: Out of memory." << std::endl;
+                return ERR_THASH_OUT_OF_MEM;
             }
             
             memset(nodes, 0, nodes_size);
@@ -122,6 +127,6 @@ void tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash)
             
             // Free the nodes array
             delete [] nodes;
-            return;
+            return OK;
     }
 }

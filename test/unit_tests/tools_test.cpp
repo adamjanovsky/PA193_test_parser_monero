@@ -8,6 +8,7 @@
 
 #include "tools.hpp"
 #include "gtest/gtest.h"
+#include "error.hpp"
 #include <cstring>
 #include <cstdlib>
 
@@ -111,14 +112,28 @@ namespace {
         ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
     }
     
+    TEST(TreeHash, DiesOnNullInputBuffer) {
+        char * source = NULL;
+        char result[32];
+        size_t length = 1;
+        
+        ASSERT_EQ(ERR_THASH_NULL_INPUT, tools::tree_hash(source, length, result));
+    }
+    
+    TEST(TreeHash, DiesOnNullOutputBuffer) {
+        char source[32];
+        char * result = NULL;
+        size_t length = 1;
+        
+        ASSERT_EQ(ERR_THASH_NULL_INPUT, tools::tree_hash(source, length, result));
+    }
+    
     TEST(TreeHash, DiesOnNegativeLength) {
         char source[32];
         char result[32];
         size_t length = -1;
 
-        ASSERT_EXIT(tools::tree_hash(source, length, result),
-                    ::testing::ExitedWithCode(1),
-                    "TreeHash: Invalid input.");
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnZeroLength) {
@@ -126,9 +141,7 @@ namespace {
         char result[32];
         size_t length = 0;
         
-        ASSERT_EXIT(tools::tree_hash(source, length, result),
-                    ::testing::ExitedWithCode(1),
-                    "TreeHash: Invalid input.");
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnLengthNotDivisibleBy32) {
@@ -136,9 +149,7 @@ namespace {
         char result[32];
         size_t length = 5;
         
-        ASSERT_EXIT(tools::tree_hash(source, length, result),
-                    ::testing::ExitedWithCode(1),
-                    "TreeHash: Invalid input.");
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnExcessiveLength) {
@@ -146,9 +157,7 @@ namespace {
         char result[32];
         size_t length = 0x10000001; // 0x10000000 is the upper bound in Monero project
         
-        ASSERT_EXIT(tools::tree_hash(source, length, result),
-                    ::testing::ExitedWithCode(1),
-                    "TreeHash: Invalid input.");
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
 }  // namespace
