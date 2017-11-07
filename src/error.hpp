@@ -13,8 +13,6 @@
 #define OK   0
 
 
-// # Tools
-
 // Skip varint errors
 #define ERR_SKIPV_UNEXPECTED_EOF    -1
 #define ERR_SKIPV_VARINT_TOO_LONG   -2
@@ -35,6 +33,12 @@
 #define ERR_BL_LOADHDR_INVALID_FORMAT   -1
 #define ERR_BL_LOADHDR_OUT_OF_MEM       -2
 #define ERR_BL_LOADHDR_EOF              -3
+
+
+// Load miner tx
+#define ERR_TRANS_CORRUPTED_FORMAT  -1
+#define ERR_TRANS_PARSER_ERROR      -2
+#define ERR_TRANS_OUT_OF_MEM        -3
 
 
 #endif /* error_h */
