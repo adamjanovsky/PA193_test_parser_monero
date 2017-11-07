@@ -1,4 +1,4 @@
-SRC = src/main.cpp
+SRC = main.cpp
 TARGET = bin/parser
 TEST_DIR = test
 
