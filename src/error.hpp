@@ -17,6 +17,10 @@
 #define ERR_SKIPV_UNEXPECTED_EOF    -1
 #define ERR_SKIPV_VARINT_TOO_LONG   -2
 
+// Skip bytes errors
+#define ERR_SKIPB_UNEXPECTED_EOF    -1
+#define ERR_SKIPB_INVALID_LENGTH    -2
+
 // Tree hash errors
 #define ERR_THASH_INVALID_IN_LEN    -1
 #define ERR_THASH_NULL_INPUT        -2

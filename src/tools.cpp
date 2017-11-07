@@ -36,6 +36,18 @@ int tools::skip_varint(std::istream & in) {
     return bytes_skipped;
 }
 
+int tools::skip_bytes(std::istream & in, int length) {
+    if (length <= 0) {
+        return ERR_SKIPB_INVALID_LENGTH;
+    }
+    
+    in.seekg(length, std::ios_base::cur);
+    if (!in.good()) {
+        return ERR_SKIPB_UNEXPECTED_EOF;
+    }
+    return length;
+}
+
 void tools::hash(const char *input, size_t input_byte_len, char *output) {
     
     // Cast the input and output as unsigned for the Keccak implementation

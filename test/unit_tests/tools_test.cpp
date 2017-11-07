@@ -57,6 +57,35 @@ namespace {
         ASSERT_EQ(ERR_SKIPV_UNEXPECTED_EOF, tools::skip_varint(ss));
     }
     
+    TEST(SkipBytes, ReturnsSkippedLength) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x82);
+
+        ASSERT_EQ(2, tools::skip_bytes(ss, 2));
+    }
+    
+    TEST(SkipBytes, ExitsOnEOF) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x82);
+        
+        ASSERT_EQ(ERR_SKIPB_UNEXPECTED_EOF, tools::skip_bytes(ss, 3));
+    }
+    
+    TEST(SkipBytes, ExitsOnZeroLength) {
+        std::stringstream ss;
+        
+        ASSERT_EQ(ERR_SKIPB_INVALID_LENGTH, tools::skip_bytes(ss, 0));
+    }
+    
+    TEST(SkipBytes, ExitsOnNegativeLength) {
+        std::stringstream ss;
+        
+        ASSERT_EQ(ERR_SKIPB_INVALID_LENGTH, tools::skip_bytes(ss, -1));
+    }
+    
     TEST(TreeHash, HandlesLengthOne) {
         // Source
         const size_t source_len = HASH_SIZE;

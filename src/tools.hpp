@@ -23,6 +23,16 @@ namespace tools {
      */
     int skip_varint(std::istream & in);
     
+    
+    /**
+     Skips a desired amount of bytes in stream and checks whether the stream did not end in the process.
+
+     @param in stream to skip the bytes in
+     @param length how many bytes to skip
+     @return length if ok, negative val if error
+     */
+    int skip_bytes(std::istream & in, int length);
+    
     /**
      Executes Keccak hash function with parameters extracted from monero.
      
