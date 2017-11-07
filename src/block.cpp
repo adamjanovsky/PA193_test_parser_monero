@@ -326,13 +326,6 @@ int Block::get_block_hash(unsigned char * hash) {
     
     tools::hash(hashing_blob.data(), hashing_blob.size(), hash);
     
-    // tmp: print blob
-    printf("{ ");
-    for (auto item : hashing_blob) {
-        printf("%02x ", item);
-    }
-    printf(" } \n");
-    
     return OK;
 }
 
