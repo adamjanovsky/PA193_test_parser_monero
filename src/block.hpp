@@ -18,6 +18,7 @@ using std::string;
 using std::ifstream;
 
 class Block {
+    // true if the block has been successfully initialized
     bool initialized;
     
     // Filename to read the block from
@@ -64,11 +65,25 @@ class Block {
     int load_tx_hashes(ifstream & in);
     
 public:
-    // bacha na inicializace pointeru
-    Block() : initialized(0) {};
     
-    // init from file, rozmrdat se
+    Block() :
+    initialized(false),
+    filename(""),
+    block_header(nullptr),
+    block_header_length(0),
+    miner_tx(nullptr),
+    tx_hashes(nullptr),
+    tx_hashes_count(0) {};
+    
+    /**
+     Init and parse the block from the specified file.
+
+     @param filename filename of the file to read the block from
+     @return 0 if OK, negative otherwise
+     */
     int init_from_file(string filename);
+    
+    
     // hash previous blocku ulozenej v headeru
     const unsigned char * extract_prev_id() {
         return prev_id;
@@ -79,7 +94,11 @@ public:
         return block_hash;
     }
     
-    // deallo shit
+    /**
+     Clear and dealloc block data.
+
+     @return OK
+     */
     int clear_block();
 };
 

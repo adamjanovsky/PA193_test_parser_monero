@@ -50,6 +50,12 @@
 #define ERR_TXH_CORRUPTED_FORMAT    -1
 #define ERR_TXH_PARSER_ERROR        -2
 #define ERR_TXH_OUT_OF_MEM          -3
+#define ERR_TXH_NO_EOF              -4
+
+// Init block
+#define ERR_BL_INIT_HEADER          -1
+#define ERR_BL_INIT_MINER_TX        -2
+#define ERR_BL_INIT_TX_HASHES       -3
 
 
 #endif /* error_h */

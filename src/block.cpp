@@ -64,25 +64,35 @@ int Block::load_header(ifstream & in) {
 }
 
 int Block::init_from_file(string filename) {
-    // alloc veci dle jejich delky v blocku
-    // rozparsovat
-
-    // predavat si istream, bacha, at je na konci fce pointer dycky na konci vyparsovane casti
-
+    
+    // Open the in file
     std::ifstream in_file(filename);
     if (!in_file.is_open()) {
-        std::cout << "wtf" << std::endl;
+        std::cout << "Could not open file: " << filename << std::endl;
     }
+    this->filename = filename;
 
-    load_header(in_file);
-
-    return 0;
+    // Try to parse header, miner_tx and tx_hashes
+    
+    if (load_header(in_file) < 0) {
+        std::cerr << "Block header: Could not parse block header." << std::endl;
+        return ERR_BL_INIT_HEADER;
+    }
+    
+    if (load_miner_tx(in_file) < 0) {
+        std::cerr << "Block header: Could not parse miner transaction." << std::endl;
+        return ERR_BL_INIT_MINER_TX;
+    }
+    
+    if (load_tx_hashes(in_file) < 0) {
+        std::cerr << "Block header: Could not parse transaction hashes." << std::endl;
+        return ERR_BL_INIT_TX_HASHES;
+    }
+    
+    // Everything went fine...
+    initialized = true;
+    return OK;
 }
-
-int Block::clear_block() {
-    return 0;
-}
-
 
 int Block::load_miner_tx(ifstream & in)
 {
@@ -268,11 +278,33 @@ int Block::load_tx_hashes(ifstream & in)
         in.read((char *) (this->tx_hashes + HASH_SIZE * i), HASH_SIZE);
     }
 
+    
+    // Try to read one more byte and test EOF
+    char c;
+    in.read(&c, 1);
     if(!in.eof()) // some bytes remain, weird?
     {
         std::cerr << "Tx hashes: Blocked parsed but some bytes are remaining." << std::endl;
+        return ERR_TXH_NO_EOF;
     }
 
+    return OK;
+}
 
+
+int Block::clear_block() {
+    initialized = false;
+    filename = "";
+    
+    if (block_header and block_header != nullptr) delete [] block_header;
+    if (miner_tx and miner_tx != nullptr) delete [] miner_tx;
+    if (tx_hashes and tx_hashes != nullptr) delete [] tx_hashes;
+    
+    memset(prev_id, 0, HASH_SIZE);
+    memset(block_hash, 0, HASH_SIZE);
+    
+    block_header_length = 0;
+    tx_hashes_count = 0;
+    
     return OK;
 }
