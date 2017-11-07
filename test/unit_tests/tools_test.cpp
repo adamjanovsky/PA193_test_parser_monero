@@ -12,8 +12,72 @@
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
+#include <vector>
 
 namespace {
+    
+    // Write varint
+    // expected values are taken from original Monero code.
+
+    TEST(WriteVarint, HandlesLenghtOne) {
+        std::vector<unsigned char>vect;
+        std::vector<unsigned char>vect_expected;
+
+        // init expected result
+        vect_expected.push_back(0x05);
+        
+        // calculate actual result
+        tools::write_varint(vect, 5);
+        
+        // compare the vects
+        ASSERT_EQ(vect.size(), vect_expected.size());
+        for (size_t i = 0; i < vect_expected.size(); i++) {
+            ASSERT_EQ(vect_expected[i], vect[i]);
+        }
+    }
+    
+    TEST(WriteVarint, HandlesLenghtTwo) {
+        std::vector<unsigned char>vect;
+        std::vector<unsigned char>vect_expected;
+        
+        // init expected result
+        vect_expected.push_back(0x90);
+        vect_expected.push_back(0x03);
+        
+        // calculate actual result
+        tools::write_varint(vect, 400);
+        
+        // compare the vects
+        ASSERT_EQ(vect.size(), vect_expected.size());
+        for (size_t i = 0; i < vect_expected.size(); i++) {
+            ASSERT_EQ(vect_expected[i], vect[i]);
+        }
+    }
+    
+    TEST(WriteVarint, HandlesLargeNum) {
+        std::vector<unsigned char>vect;
+        std::vector<unsigned char>vect_expected;
+        
+        // init expected result
+        vect_expected.push_back(0x80);
+        vect_expected.push_back(0x80);
+        vect_expected.push_back(0xe0);
+        vect_expected.push_back(0xec);
+        vect_expected.push_back(0x99);
+        vect_expected.push_back(0xe8);
+        vect_expected.push_back(0xbd);
+        vect_expected.push_back(0xd6);
+        vect_expected.push_back(0x7f);
+
+        // calculate actual result
+        tools::write_varint(vect, 9200000000000000000);
+        
+        // compare the vects
+        ASSERT_EQ(vect.size(), vect_expected.size());
+        for (size_t i = 0; i < vect_expected.size(); i++) {
+            ASSERT_EQ(vect_expected[i], vect[i]);
+        }
+    }
     
     // Read varint
     // expected values are taken from original Monero code.
