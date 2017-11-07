@@ -15,7 +15,25 @@
 
 
 int tools::skip_varint(std::istream & in) {
-    return 0;
+    char c;
+    in.read(&c, 1);
+    int bytes_skipped = 1;
+
+    // read from the stream until there was a byte that started with a zero bit
+    while (c & 0x80 && bytes_skipped <= 10) {
+        if (in.eof()) {
+            std::cerr << "Skip Varint: Unexpected end of stream." << std::endl;
+            return ERR_SKIPV_UNEXPECTED_EOF;
+        }
+        in.read(&c, 1);
+        bytes_skipped++;
+    }
+    
+    if (bytes_skipped > 10) {
+        return ERR_SKIPV_VARINT_TOO_LONG;
+    }
+    
+    return bytes_skipped;
 }
 
 void tools::hash(const char *input, size_t input_byte_len, char *output) {

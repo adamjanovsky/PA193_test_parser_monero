@@ -15,6 +15,12 @@
 
 namespace tools {
     
+    /**
+     Skips a serialized varint in the input stream.
+
+     @param in stream to read from
+     @return number of bytes skipped if ok, negative val if error
+     */
     int skip_varint(std::istream & in);
     
     /**

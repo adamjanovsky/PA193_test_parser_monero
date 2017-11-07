@@ -11,8 +11,52 @@
 #include "error.hpp"
 #include <cstring>
 #include <cstdlib>
+#include <sstream>
 
 namespace {
+    
+    TEST(SkipVarint, HandlesLenghtOne) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x01);
+        
+        ASSERT_EQ(1, tools::skip_varint(ss));
+    }
+    
+    TEST(SkipVarint, HandlesLenghtTwo) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x02);
+
+        ASSERT_EQ(2, tools::skip_varint(ss));
+    }
+    
+    TEST(SkipVarint, HandlesLenghtTen) {
+        std::stringstream ss;
+        for (int i = 0; i < 9; i++) {
+            ss  << static_cast<unsigned char>(0x81);
+        }
+        ss  << static_cast<unsigned char>(0x01);
+        
+        ASSERT_EQ(10, tools::skip_varint(ss));
+    }
+    
+    TEST(SkipVarint, ExitsOnExcessiveLength) {
+        std::stringstream ss;
+        for (int i = 0; i < 11; i++) {
+            ss  << static_cast<unsigned char>(0x82);
+        }
+        
+        ASSERT_EQ(ERR_SKIPV_VARINT_TOO_LONG, tools::skip_varint(ss));
+    }
+    
+    TEST(SkipVarint, ExitsOnEOF) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x82);
+        
+        ASSERT_EQ(ERR_SKIPV_UNEXPECTED_EOF, tools::skip_varint(ss));
+    }
+    
     TEST(TreeHash, HandlesLengthOne) {
         // Source
         const size_t source_len = HASH_SIZE;
