@@ -26,11 +26,11 @@ TEST_DIR = ./unit_tests
 CPPFLAGS += -isystem $(GTEST_DIR)/include -I ../src
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -std=c++11 -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = testable_test
+TESTS = testable_test hash_test
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -79,5 +79,19 @@ testable_test.o : $(TEST_DIR)/testable_test.cc $(USER_DIR)/testable.h $(GTEST_HE
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/testable_test.cc
 
 testable_test : testable.o testable_test.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+# hash and tree hash
+
+keccak.o : $(USER_DIR)/hash/Keccak-readable-and-compact.h $(USER_DIR)/hash/Keccak-readable-and-compact.c $(USER_DIR)/config.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o keccak.o -c $(USER_DIR)/hash/Keccak-readable-and-compact.c
+
+hash.o : $(USER_DIR)/hash/hash.cpp $(USER_DIR)/hash/hash.hpp $(USER_DIR)/config.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/hash/hash.cpp
+
+hash_test.o : $(TEST_DIR)/hash_test.cpp $(USER_DIR)/hash/hash.hpp $(USER_DIR)/config.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/hash_test.cpp
+
+hash_test : hash.o keccak.o hash_test.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
