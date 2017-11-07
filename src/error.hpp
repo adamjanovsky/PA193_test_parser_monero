@@ -57,5 +57,9 @@
 #define ERR_BL_INIT_MINER_TX        -2
 #define ERR_BL_INIT_TX_HASHES       -3
 
+// Hash block
+#define ERR_BL_HASH_OUT_OF_MEM      -1
+
+
 
 #endif /* error_h */

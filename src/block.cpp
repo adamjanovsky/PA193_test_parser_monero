@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "block.hpp"
 #include "tools.hpp"
@@ -245,7 +246,8 @@ int Block::load_miner_tx(ifstream & in)
     }
 
     in.read((char *) this->miner_tx, endPosition - startPosition);
-
+    miner_tx_length = endPosition - startPosition;
+    
     return OK;
 }
 
@@ -291,6 +293,38 @@ int Block::load_tx_hashes(ifstream & in)
     return OK;
 }
 
+int Block::get_block_hash(unsigned char * hash) {
+    unsigned char miner_tx_hash[HASH_SIZE];
+    tools::hash(miner_tx, miner_tx_length, miner_tx_hash);
+    
+    std::vector<unsigned char> all_hashes_vect;
+    
+    // push back the miner_tx hash
+    all_hashes_vect.insert(all_hashes_vect.end(), &miner_tx_hash[0], &miner_tx_hash[HASH_SIZE]);
+    // push back the other hashes
+    all_hashes_vect.insert(all_hashes_vect.end(), &tx_hashes[0], &tx_hashes[tx_hashes_count * HASH_SIZE]);
+
+    // get the tree root hash
+    unsigned char tree_root_hash[HASH_SIZE];
+    tools::tree_hash(all_hashes_vect.data(), all_hashes_vect.size(), tree_root_hash);
+
+    // blob that will be hashed to get the block hash
+    std::vector<unsigned char>hashing_blob;
+    // push back the block header
+    hashing_blob.insert(hashing_blob.end(), &block_header[0], &block_header[block_header_length]);
+    // push back the tree root hash
+    hashing_blob.insert(hashing_blob.end(), &tree_root_hash[0], &tree_root_hash[HASH_SIZE]);
+    
+    // count all transactions including the miner tx
+    unsigned long all_tx_count = 1 + tx_hashes_count;
+    // append it serialized as varint to the blob
+    tools::write_varint(hashing_blob, all_tx_count);
+    
+    tools::hash(hashing_blob.data(), hashing_blob.size(), hash);
+    
+    return OK;
+}
+
 
 int Block::clear_block() {
     initialized = false;
@@ -301,8 +335,7 @@ int Block::clear_block() {
     if (tx_hashes and tx_hashes != nullptr) delete [] tx_hashes;
     
     memset(prev_id, 0, HASH_SIZE);
-    memset(block_hash, 0, HASH_SIZE);
-    
+
     block_header_length = 0;
     tx_hashes_count = 0;
     

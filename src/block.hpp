@@ -27,20 +27,20 @@ class Block {
     // Hash of the previous block in blockchain
     unsigned char prev_id[HASH_SIZE];
     
-    // Hash of this block
-    unsigned char block_hash[HASH_SIZE];
-    
     // Header of this block
     unsigned char * block_header;
-    
     // Length of the header
     size_t block_header_length;
     
-    
+    // Extracted miner transaction data
     unsigned char * miner_tx;
-    unsigned char * tx_hashes;
-    unsigned long tx_hashes_count;
+    // Size of miner transaction
+    size_t miner_tx_length;
     
+    // Transaction hashes
+    unsigned char * tx_hashes;
+    // Count of transaction hashes
+    unsigned long tx_hashes_count;
 
     /**
      Examines the header of the block, loads it into the block_header, extracts hash to prev_id and save the header length to block_header_length.
@@ -72,6 +72,7 @@ public:
     block_header(nullptr),
     block_header_length(0),
     miner_tx(nullptr),
+    miner_tx_length(0),
     tx_hashes(nullptr),
     tx_hashes_count(0) {};
     
@@ -83,16 +84,22 @@ public:
      */
     int init_from_file(string filename);
     
-    
-    // hash previous blocku ulozenej v headeru
+    /**
+     Return hash of the previous block (previous block ID) extracted from header of this block.
+
+     @return previous block id (hash)
+     */
     const unsigned char * extract_prev_id() {
         return prev_id;
     }
     
-    // zahashuj se a vrat hash
-    const unsigned char * get_block_hash() {
-        return block_hash;
-    }
+    /**
+     Calculate and return hash of this block
+
+     @param hash where to store the hash
+     @return 0 if ok, negative otherwise
+     */
+    int get_block_hash(unsigned char * hash);
     
     /**
      Clear and dealloc block data.
