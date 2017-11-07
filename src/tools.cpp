@@ -15,6 +15,26 @@
 #include "error.hpp"
 
 
+int tools::write_varint(std::vector<unsigned char> & out_vect, unsigned long val) {
+    
+    unsigned char c;
+    
+    while (val >= 0x80) {
+        // get lowest 7 bits
+        c = val & 0x7f;
+        // save to the vector with the first bit set to 1
+        out_vect.push_back(c | 0x80);
+        // shift the value
+        val >>= 7;
+    }
+    
+    // write the last byte (with the first bit set to 0)
+    c = val & 0x7f;
+    out_vect.push_back(c);
+    
+    return OK;
+}
+
 int tools::read_varint(std::istream & in, unsigned long & val) {
     
     // We will load the varint into a vector and then deserialize it

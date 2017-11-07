@@ -12,9 +12,26 @@
 #include <stdio.h>
 #include "config.hpp"
 #include <istream>
+#include <vector>
 
 namespace tools {
     
+    /**
+     Serialize varint to a vector (append the bytes)
+
+     @param out_vect push back the bytes to this vect
+     @param val value to serialize
+     @return 0 if ok, negative otherwise
+     */
+    int write_varint(std::vector<unsigned char> & out_vect, unsigned long val);
+    
+    /**
+     Read a serialized varint from a stream
+
+     @param in stream to read the varint from
+     @param val where to save the varint
+     @return 0 if ok, negative otherwise
+     */
     int read_varint(std::istream & in, unsigned long & val);
     
     /**
