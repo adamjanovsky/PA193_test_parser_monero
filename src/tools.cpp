@@ -8,16 +8,16 @@
 
 #include <iostream>
 #include <cstring>
-#include "Keccak-readable-and-compact.h"
-#include "hash.hpp"
+#include "keccak/Keccak-readable-and-compact.h"
+#include "tools.hpp"
 #include "config.hpp"
 
 
-int helper::skip_varint(std::istream & in) {
+int tools::skip_varint(std::istream & in) {
     return 0;
 }
 
-void helper::hash(const char *input, size_t input_byte_len, char *output) {
+void tools::hash(const char *input, size_t input_byte_len, char *output) {
     
     // Cast the input and output as unsigned for the Keccak implementation
     const unsigned char *u_input    = reinterpret_cast<const unsigned char *>(input);
@@ -33,7 +33,7 @@ void helper::hash(const char *input, size_t input_byte_len, char *output) {
     Keccak(rate, capacity, u_input, input_byte_len, delimited_suffix, u_output, output_length);
 }
 
-void helper::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
+void tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
     
     // @TODO chech for nullptr
     

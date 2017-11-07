@@ -6,14 +6,14 @@
 //  Copyright © 2017 MUNI. All rights reserved.
 //
 
-#ifndef hash_hpp
-#define hash_hpp
+#ifndef tools_hpp
+#define tools_hpp
 
 #include <stdio.h>
 #include "config.hpp"
 #include <istream>
 
-namespace helper {
+namespace tools {
     
     int skip_varint(std::istream & in);
     
@@ -36,4 +36,4 @@ namespace helper {
     void tree_hash(const char *hash_buffer, size_t buf_len, char *root_hash);
 }
 
-#endif /* hash_hpp */
+#endif /* tools_hpp */

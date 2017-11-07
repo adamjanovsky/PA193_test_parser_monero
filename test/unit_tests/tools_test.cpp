@@ -6,7 +6,7 @@
 //  Copyright © 2017 MUNI. All rights reserved.
 //
 
-#include "hash/hash.hpp"
+#include "tools.hpp"
 #include "gtest/gtest.h"
 #include <cstring>
 #include <cstdlib>
@@ -30,7 +30,7 @@ namespace {
         
         // Calculate our result
         char result[HASH_SIZE];
-        hash::tree_hash(source, source_len, result);
+        tools::tree_hash(source, source_len, result);
         
         // Compare
         ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
@@ -55,7 +55,7 @@ namespace {
         
         // Calculate our result
         char result[HASH_SIZE];
-        hash::tree_hash(source, source_len, result);
+        tools::tree_hash(source, source_len, result);
         
         // Compare
         ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
@@ -80,7 +80,7 @@ namespace {
         
         // Calculate our result
         char result[HASH_SIZE];
-        hash::tree_hash(source, source_len, result);
+        tools::tree_hash(source, source_len, result);
         
         // Compare
         ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
@@ -105,7 +105,7 @@ namespace {
         
         // Calculate our result
         char result[HASH_SIZE];
-        hash::tree_hash(source, source_len, result);
+        tools::tree_hash(source, source_len, result);
         
         // Compare
         ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
@@ -116,7 +116,7 @@ namespace {
         char result[32];
         size_t length = -1;
 
-        ASSERT_EXIT(hash::tree_hash(source, length, result),
+        ASSERT_EXIT(tools::tree_hash(source, length, result),
                     ::testing::ExitedWithCode(1),
                     "TreeHash: Invalid input.");
     }
@@ -126,7 +126,7 @@ namespace {
         char result[32];
         size_t length = 0;
         
-        ASSERT_EXIT(hash::tree_hash(source, length, result),
+        ASSERT_EXIT(tools::tree_hash(source, length, result),
                     ::testing::ExitedWithCode(1),
                     "TreeHash: Invalid input.");
     }
@@ -136,7 +136,7 @@ namespace {
         char result[32];
         size_t length = 5;
         
-        ASSERT_EXIT(hash::tree_hash(source, length, result),
+        ASSERT_EXIT(tools::tree_hash(source, length, result),
                     ::testing::ExitedWithCode(1),
                     "TreeHash: Invalid input.");
     }
@@ -146,7 +146,7 @@ namespace {
         char result[32];
         size_t length = 0x10000001; // 0x10000000 is the upper bound in Monero project
         
-        ASSERT_EXIT(hash::tree_hash(source, length, result),
+        ASSERT_EXIT(tools::tree_hash(source, length, result),
                     ::testing::ExitedWithCode(1),
                     "TreeHash: Invalid input.");
     }
