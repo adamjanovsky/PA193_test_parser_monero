@@ -48,11 +48,19 @@ class Block {
      @return 0 if ok, neg if not
      */
     int load_header(ifstream & in);
-    
-    // load blob of miner tx
+        
+    /**
+     * @brief load_miner_tx examines the miner transaction, loads it into miner_tx field.
+     * @param in ifstream where the transaction is saved at correct offset
+     * @return 0 if ok, neg if not
+     */
     int load_miner_tx(ifstream & in);
     
-    // load array of tx hashes
+    /**
+     * @brief load_tx_hashes loads array of hashes into variable and stores how many hashes are present as well
+     * @param in the input stream with correct offset
+     * @return 0 if ok, neg if not
+     */
     int load_tx_hashes(ifstream & in);
     
 public:

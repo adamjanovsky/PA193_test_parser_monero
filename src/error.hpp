@@ -41,4 +41,15 @@
 #define ERR_BL_LOADHDR_EOF              -3
 
 
+// Load miner tx
+#define ERR_TRANS_CORRUPTED_FORMAT  -1
+#define ERR_TRANS_PARSER_ERROR      -2
+#define ERR_TRANS_OUT_OF_MEM        -3
+
+// Load tx hashes
+#define ERR_TXH_CORRUPTED_FORMAT    -1
+#define ERR_TXH_PARSER_ERROR        -2
+#define ERR_TXH_OUT_OF_MEM          -3
+
+
 #endif /* error_h */
