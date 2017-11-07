@@ -21,11 +21,14 @@ class Parser {
     
 public:
     Parser() {
-        // alloc blocks
+        higher_block = new Block();
+        lower_block = new Block();
+
     }
     
     ~Parser() {
-        // free blocks
+        delete higher_block;
+        delete lower_block;
     }
     
     // proste inicializuj a validuj dva blocky

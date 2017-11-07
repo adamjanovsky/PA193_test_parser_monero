@@ -10,9 +10,13 @@
 
 int Parser::validate_block(string lower_filename, string higher_filename) {
     
-    // init blocks
-    // validate blocks
-    // clear blocks
+    this->lower_block->init_from_file(lower_filename);
+    this->higher_block->init_from_file(higher_filename);
     
+    // validate
+
+    this->lower_block->clear_block();
+    this->higher_block->clear_block();
+
     return 0;
 }
