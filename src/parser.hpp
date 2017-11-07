@@ -20,18 +20,9 @@ class Parser {
     Block * lower_block;
     
 public:
-    Parser() {
-        higher_block = new Block();
-        lower_block = new Block();
-
-    }
+    Parser();
+    ~Parser();
     
-    ~Parser() {
-        delete higher_block;
-        delete lower_block;
-    }
-    
-    // proste inicializuj a validuj dva blocky
     int validate_block(string lower_filename, string higher_filename);
 };
 
