@@ -10,9 +10,14 @@
 #include <cstring>
 #include "Keccak-readable-and-compact.h"
 #include "hash.hpp"
-#include "config.h"
+#include "config.hpp"
 
-void hash::hash(const char *input, size_t input_byte_len, char *output) {
+
+int helper::skip_varint(std::istream & in) {
+    return 0;
+}
+
+void helper::hash(const char *input, size_t input_byte_len, char *output) {
     
     // Cast the input and output as unsigned for the Keccak implementation
     const unsigned char *u_input    = reinterpret_cast<const unsigned char *>(input);
@@ -28,7 +33,10 @@ void hash::hash(const char *input, size_t input_byte_len, char *output) {
     Keccak(rate, capacity, u_input, input_byte_len, delimited_suffix, u_output, output_length);
 }
 
-void hash::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
+void helper::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
+    
+    // @TODO chech for nullptr
+    
     // Check buf_len
     // - each hash is 32 bytes-long => buf_len must be a multiple of 32
     if (buf_len <= 0 || buf_len % 32 != 0) {
@@ -37,7 +45,7 @@ void hash::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) 
     }
         
     // Calculate the hash count and check it for sanity
-    // - bound of 0x10000000 is included in original Monero function
+    // - bound of 0x10000000 is included in the original Monero function
     size_t hash_count = buf_len / 32;
     if (hash_count <= 0 || hash_count > 0x10000000) {
         printf("TreeHash: Invalid input.");

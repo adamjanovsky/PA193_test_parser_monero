@@ -10,9 +10,13 @@
 #define hash_hpp
 
 #include <stdio.h>
-#include "config.h"
+#include "config.hpp"
+#include <istream>
 
-namespace hash {
+namespace helper {
+    
+    int skip_varint(std::istream & in);
+    
     /**
      Executes Keccak hash function with parameters extracted from monero.
      
