@@ -15,8 +15,8 @@
 
 
 int tools::skip_varint(std::istream & in) {
-    char c;
-    in.read(&c, 1);
+    unsigned char c;
+    in.read((char *)&c, 1);
     int bytes_skipped = 1;
 
     // read from the stream until there was a byte that started with a zero bit
@@ -25,11 +25,12 @@ int tools::skip_varint(std::istream & in) {
             std::cerr << "Skip Varint: Unexpected end of stream." << std::endl;
             return ERR_SKIPV_UNEXPECTED_EOF;
         }
-        in.read(&c, 1);
+        in.read((char *)&c, 1);
         bytes_skipped++;
     }
     
     if (bytes_skipped > 10) {
+        std::cerr << "Skip Varint: String too long." << std::endl;
         return ERR_SKIPV_VARINT_TOO_LONG;
     }
     
@@ -38,22 +39,19 @@ int tools::skip_varint(std::istream & in) {
 
 int tools::skip_bytes(std::istream & in, int length) {
     if (length <= 0) {
+        std::cerr << "Skip bytes: Invalid length." << std::endl;
         return ERR_SKIPB_INVALID_LENGTH;
     }
     
     in.seekg(length, std::ios_base::cur);
     if (!in.good()) {
+        std::cerr << "Skip bytes: Unexpected end of stream." << std::endl;
         return ERR_SKIPB_UNEXPECTED_EOF;
     }
     return length;
 }
 
-void tools::hash(const char *input, size_t input_byte_len, char *output) {
-    
-    // Cast the input and output as unsigned for the Keccak implementation
-    const unsigned char *u_input    = reinterpret_cast<const unsigned char *>(input);
-    unsigned char *u_output         = reinterpret_cast<unsigned char *>(output);
-    
+void tools::hash(const unsigned char *input, size_t input_byte_len, unsigned char *output) {
     // Set the Keccak parameters
     const unsigned int rate                 = 1088;
     const unsigned int capacity             = 512;
@@ -61,10 +59,10 @@ void tools::hash(const char *input, size_t input_byte_len, char *output) {
     const size_t output_length              = HASH_SIZE;
     
     // Hash
-    Keccak(rate, capacity, u_input, input_byte_len, delimited_suffix, u_output, output_length);
+    Keccak(rate, capacity, input, input_byte_len, delimited_suffix, output, output_length);
 }
 
-int tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) {
+int tools::tree_hash(const unsigned char * hash_buffer, size_t buf_len, unsigned char *root_hash) {
     
     // Check for null in/out buffers
     if (!hash_buffer || !root_hash || hash_buffer == nullptr || root_hash == nullptr) {
@@ -88,7 +86,7 @@ int tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) 
     }
     
     // Reintepret the hash_buffer as array of 32 byte-long hashes
-    const char (* hashes) [HASH_SIZE] = reinterpret_cast<const char (*)[32]>(hash_buffer);
+    const unsigned char (* hashes) [HASH_SIZE] = reinterpret_cast<const unsigned char (*)[32]>(hash_buffer);
     
     switch (hash_count) {
         case 1:
@@ -110,9 +108,9 @@ int tools::tree_hash(const char * hash_buffer, size_t buf_len, char *root_hash) 
             while (int_nodes_count * 2 < hash_count) int_nodes_count *= 2;
             
             // Initialize the tree nodes
-            char (*nodes)[HASH_SIZE];
+            unsigned char (*nodes)[HASH_SIZE];
             size_t nodes_size = int_nodes_count * HASH_SIZE;
-            nodes = reinterpret_cast<char (*)[32]>(new(std::nothrow) char[nodes_size]);
+            nodes = reinterpret_cast<unsigned char (*)[32]>(new(std::nothrow) unsigned char[nodes_size]);
             if (nodes == nullptr) {
                 std::cerr << "TreeHash: Out of memory." << std::endl;
                 return ERR_THASH_OUT_OF_MEM;

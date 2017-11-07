@@ -66,6 +66,14 @@ namespace {
         ASSERT_EQ(2, tools::skip_bytes(ss, 2));
     }
     
+    TEST(SkipBytes, SkipsTillStreamEnd) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x82);
+        
+        ASSERT_EQ(2, tools::skip_bytes(ss, 2));
+    }
+    
     TEST(SkipBytes, ExitsOnEOF) {
         std::stringstream ss;
         ss  << static_cast<unsigned char>(0x82);
@@ -89,7 +97,7 @@ namespace {
     TEST(TreeHash, HandlesLengthOne) {
         // Source
         const size_t source_len = HASH_SIZE;
-        char source[source_len];
+        unsigned char source[source_len];
         
         // All bits set to 0x00
         memset(source, 0x00, source_len);
@@ -103,7 +111,7 @@ namespace {
         };
         
         // Calculate our result
-        char result[HASH_SIZE];
+        unsigned char result[HASH_SIZE];
         tools::tree_hash(source, source_len, result);
         
         // Compare
@@ -114,7 +122,7 @@ namespace {
         
         // Source
         const size_t source_len = HASH_SIZE * 2;
-        char source[source_len];
+        unsigned char source[source_len];
         
         // All bits set to 0x01
         memset(source, 0x01, source_len);
@@ -128,7 +136,7 @@ namespace {
         };
         
         // Calculate our result
-        char result[HASH_SIZE];
+        unsigned char result[HASH_SIZE];
         tools::tree_hash(source, source_len, result);
         
         // Compare
@@ -139,7 +147,7 @@ namespace {
         
         // Source
         const size_t source_len = HASH_SIZE * 32;
-        char source[source_len];
+        unsigned char source[source_len];
         
         // All bytes set to 0x02
         memset(source, 0x02, source_len);
@@ -153,7 +161,7 @@ namespace {
         };
         
         // Calculate our result
-        char result[HASH_SIZE];
+        unsigned char result[HASH_SIZE];
         tools::tree_hash(source, source_len, result);
         
         // Compare
@@ -164,7 +172,7 @@ namespace {
         
         // Source
         const size_t source_len = HASH_SIZE * 33;
-        char source[source_len];
+        unsigned char source[source_len];
         
         // All bytes set to 0x03
         memset(source, 0x03, source_len);
@@ -178,7 +186,7 @@ namespace {
         };
         
         // Calculate our result
-        char result[HASH_SIZE];
+        unsigned char result[HASH_SIZE];
         tools::tree_hash(source, source_len, result);
         
         // Compare
@@ -186,48 +194,48 @@ namespace {
     }
     
     TEST(TreeHash, DiesOnNullInputBuffer) {
-        char * source = NULL;
-        char result[32];
+        unsigned char * source = NULL;
+        unsigned char result[32];
         size_t length = 1;
         
         ASSERT_EQ(ERR_THASH_NULL_INPUT, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnNullOutputBuffer) {
-        char source[32];
-        char * result = NULL;
+        unsigned char source[32];
+        unsigned char * result = NULL;
         size_t length = 1;
         
         ASSERT_EQ(ERR_THASH_NULL_INPUT, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnNegativeLength) {
-        char source[32];
-        char result[32];
+        unsigned char source[32];
+        unsigned char result[32];
         size_t length = -1;
 
         ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnZeroLength) {
-        char source[32];
-        char result[32];
+        unsigned char source[32];
+        unsigned char result[32];
         size_t length = 0;
         
         ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnLengthNotDivisibleBy32) {
-        char source[32];
-        char result[32];
+        unsigned char source[32];
+        unsigned char result[32];
         size_t length = 5;
         
         ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
     }
     
     TEST(TreeHash, DiesOnExcessiveLength) {
-        char source[32];
-        char result[32];
+        unsigned char source[32];
+        unsigned char result[32];
         size_t length = 0x10000001; // 0x10000000 is the upper bound in Monero project
         
         ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));

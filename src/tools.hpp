@@ -23,7 +23,6 @@ namespace tools {
      */
     int skip_varint(std::istream & in);
     
-    
     /**
      Skips a desired amount of bytes in stream and checks whether the stream did not end in the process.
 
@@ -40,7 +39,7 @@ namespace tools {
      @param input_byte_len length of the input
      @param output where to store the output (32 bytes, needs to be allocated beforehand!)
      */
-    void hash(const char *input, size_t input_byte_len, char *output);
+    void hash(const unsigned char *input, size_t input_byte_len, char unsigned *output);
     
     /**
      Calculate root hash of a Merkle tree with the leaves being hashes of transactions.
@@ -49,7 +48,7 @@ namespace tools {
      @param buf_len length of the hash buffer (=> must be a multiple of 32)
      @param root_hash where to store the root hash (32 bytes, needs to be allocated beforehand!)
      */
-    int tree_hash(const char *hash_buffer, size_t buf_len, char *root_hash);
+    int tree_hash(const unsigned char *hash_buffer, size_t buf_len, unsigned char *root_hash);
 }
 
 #endif /* tools_hpp */
