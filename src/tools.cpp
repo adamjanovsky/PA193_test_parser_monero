@@ -8,11 +8,57 @@
 
 #include <iostream>
 #include <cstring>
+#include <vector>
 #include "keccak/Keccak-readable-and-compact.h"
 #include "tools.hpp"
 #include "config.hpp"
 #include "error.hpp"
 
+
+int tools::read_varint(std::istream & in, unsigned long & val) {
+    
+    // We will load the varint into a vector and then deserialize it
+    std::vector<unsigned char> ser_vect;
+    unsigned char c;
+    
+    // 10 bytes is maximum for the varint to fit in 64 bit int
+    // and the last serialized val must be 0x01 so that the int does not overflow
+    // because each byte contains 7 bits and 9 * 7 + 1 = 63 + 1 = 64
+    for (int i = 0; i < 10; i++) {
+        in.read((char *)&c, 1);
+        
+        // Check for overflow
+        if (i == 9 and c != 0x01) {
+            std::cerr << "Read varint: Varint overflow." << std::endl;
+            return ERR_READV_OVERFLOW;
+        }
+        
+        // Check for EOF
+        if (!in.good()) {
+            std::cerr << "Read varint: Unexpected end of stream." << std::endl;
+            return ERR_READV_UNEXPECTED_EOF;
+        }
+        
+        // Strip the first bit and save it into the vector
+        ser_vect.push_back(c & 0x7f);
+        
+        if ((c & 0x80) == 0x00) {
+            // we have read the last byte
+            break;
+        }
+
+    }
+    
+    val = 0;
+    int last_index = static_cast<int>(ser_vect.size()) - 1;
+    
+    for (int i = last_index; i >= 0; i--) {
+        val <<= 7;
+        val |= ser_vect.at(i);
+    }
+    
+    return OK;
+}
 
 int tools::skip_varint(std::istream & in) {
     unsigned char c;

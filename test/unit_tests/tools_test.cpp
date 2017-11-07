@@ -15,6 +15,77 @@
 
 namespace {
     
+    // Read varint
+    // expected values are taken from original Monero code.
+    
+    TEST(ReadVarint, HandlesLenghtOne) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x05);
+        unsigned long val;
+        tools::read_varint(ss, val);
+        
+        ASSERT_EQ(5, val);
+    }
+    
+    TEST(ReadVarint, HandlesLenghtTwo) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x90);
+        ss  << static_cast<unsigned char>(0x03);
+        unsigned long val;
+        tools::read_varint(ss, val);
+        
+        ASSERT_EQ(400, val);
+    }
+    
+    TEST(ReadVarint, HandlesLargeNum) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x80);
+        ss  << static_cast<unsigned char>(0x80);
+        ss  << static_cast<unsigned char>(0xe0);
+        ss  << static_cast<unsigned char>(0xec);
+        ss  << static_cast<unsigned char>(0x99);
+        ss  << static_cast<unsigned char>(0xe8);
+        ss  << static_cast<unsigned char>(0xbd);
+        ss  << static_cast<unsigned char>(0xd6);
+        ss  << static_cast<unsigned char>(0x7f);
+        unsigned long val;
+        tools::read_varint(ss, val);
+        
+        ASSERT_EQ(9200000000000000000, val);
+    }
+    
+    TEST(ReadVarint, ExitsOnLenghtTenOverflow) {
+        std::stringstream ss;
+        for (int i = 0; i < 9; i++) {
+            ss  << static_cast<unsigned char>(0x81);
+        }
+        ss  << static_cast<unsigned char>(0x02);
+        unsigned long val;
+
+        ASSERT_EQ(ERR_READV_OVERFLOW, tools::read_varint(ss, val));
+    }
+    
+    TEST(ReadVarint, ExitsOnExcessiveLength) {
+        std::stringstream ss;
+        for (int i = 0; i < 11; i++) {
+            ss  << static_cast<unsigned char>(0x82);
+        }
+        unsigned long val;
+
+        ASSERT_EQ(ERR_READV_OVERFLOW, tools::read_varint(ss, val));
+    }
+    
+    TEST(ReadVarint, ExitsOnEOF) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x82);
+        ss  << static_cast<unsigned char>(0x82);
+        unsigned long val;
+
+        ASSERT_EQ(ERR_READV_UNEXPECTED_EOF, tools::read_varint(ss, val));
+    }
+    
+    // Skip Varint
+    
     TEST(SkipVarint, HandlesLenghtOne) {
         std::stringstream ss;
         ss  << static_cast<unsigned char>(0x01);
@@ -57,6 +128,9 @@ namespace {
         ASSERT_EQ(ERR_SKIPV_UNEXPECTED_EOF, tools::skip_varint(ss));
     }
     
+    
+    // Skip bytes
+    
     TEST(SkipBytes, ReturnsSkippedLength) {
         std::stringstream ss;
         ss  << static_cast<unsigned char>(0x82);
@@ -93,6 +167,8 @@ namespace {
         
         ASSERT_EQ(ERR_SKIPB_INVALID_LENGTH, tools::skip_bytes(ss, -1));
     }
+    
+    // Tree hash
     
     TEST(TreeHash, HandlesLengthOne) {
         // Source

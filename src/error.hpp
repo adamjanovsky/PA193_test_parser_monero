@@ -15,6 +15,10 @@
 
 // # Tools
 
+// Read varint errors
+#define ERR_READV_OVERFLOW          -1
+#define ERR_READV_UNEXPECTED_EOF    -2
+
 // Skip varint errors
 #define ERR_SKIPV_UNEXPECTED_EOF    -1
 #define ERR_SKIPV_VARINT_TOO_LONG   -2

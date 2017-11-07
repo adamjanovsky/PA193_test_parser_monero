@@ -15,6 +15,8 @@
 
 namespace tools {
     
+    int read_varint(std::istream & in, unsigned long & val);
+    
     /**
      Skips a serialized varint in the input stream.
 
