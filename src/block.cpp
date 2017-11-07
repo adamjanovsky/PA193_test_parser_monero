@@ -70,6 +70,7 @@ int Block::init_from_file(string filename) {
     std::ifstream in_file(filename);
     if (!in_file.is_open()) {
         std::cout << "Could not open file: " << filename << std::endl;
+        return ERR_BL_INIT_FILE_ERROR;
     }
     this->filename = filename;
 
@@ -320,7 +321,17 @@ int Block::get_block_hash(unsigned char * hash) {
     // append it serialized as varint to the blob
     tools::write_varint(hashing_blob, all_tx_count);
     
+    unsigned char vect_size = static_cast<unsigned char>(hashing_blob.size());
+    hashing_blob.insert(hashing_blob.begin(), vect_size);
+    
     tools::hash(hashing_blob.data(), hashing_blob.size(), hash);
+    
+    // tmp: print blob
+    printf("{ ");
+    for (auto item : hashing_blob) {
+        printf("%02x ", item);
+    }
+    printf(" } \n");
     
     return OK;
 }

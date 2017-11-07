@@ -40,7 +40,6 @@
 #define ERR_BL_LOADHDR_OUT_OF_MEM       -2
 #define ERR_BL_LOADHDR_EOF              -3
 
-
 // Load miner tx
 #define ERR_TRANS_CORRUPTED_FORMAT  -1
 #define ERR_TRANS_PARSER_ERROR      -2
@@ -56,6 +55,7 @@
 #define ERR_BL_INIT_HEADER          -1
 #define ERR_BL_INIT_MINER_TX        -2
 #define ERR_BL_INIT_TX_HASHES       -3
+#define ERR_BL_INIT_FILE_ERROR      -4
 
 // Hash block
 #define ERR_BL_HASH_OUT_OF_MEM      -1
