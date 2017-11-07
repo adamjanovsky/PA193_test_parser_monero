@@ -82,9 +82,9 @@ int Block::init_from_file(string filename) {
 int Block::clear_block() {
     return 0;
 }
-}
 
-int Block::load_miner_tx(istream & in)
+
+int Block::load_miner_tx(ifstream & in)
 {
     if(!in.good())
         {
@@ -235,6 +235,44 @@ int Block::load_miner_tx(istream & in)
     }
 
     in.read((char *) this->miner_tx, endPosition - startPosition);
+
+    return OK;
+}
+
+int Block::load_tx_hashes(ifstream & in)
+{
+    if(!in.good())
+    {
+        std::cerr << "Tx hashes: invalid stream." << std::endl;
+        return ERR_TXH_PARSER_ERROR;
+    }
+
+    unsigned char flag = 0;
+    in.read((char *) &flag, 1);
+    this->tx_hashes_count = flag;
+
+    this->tx_hashes = new(std::nothrow) unsigned char[(HASH_SIZE * this->tx_hashes_count) * sizeof(unsigned char)];
+    if(!this->tx_hashes)
+    {
+        std::cerr << "Tx hashes: Out of memory." << std::endl;
+        return ERR_TRANS_OUT_OF_MEM;
+    }
+
+    for(int i = 0; i < this->tx_hashes_count; i++)
+    {
+        if(!in.good())
+        {
+            std::cerr << "Tx hashes: invalid stream." << std::endl;
+            return ERR_TXH_PARSER_ERROR;
+        }
+        in.read((char *) (this->tx_hashes + HASH_SIZE * i), HASH_SIZE);
+    }
+
+    if(!in.eof()) // some bytes remain, weird?
+    {
+        std::cerr << "Tx hashes: Blocked parsed but some bytes are remaining." << std::endl;
+    }
+
 
     return OK;
 }
