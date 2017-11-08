@@ -128,7 +128,7 @@ int Block::load_miner_tx(ifstream & in)
     {
         // Skip the output transaction:
         // (1) Amount varint
-        // (2) Check the key tak (0x02)
+        // (2) Check the key tag (0x02)
         // (3) Skip the key
         if(tools::skip_varint(in) < 0           or
            tools::expect_byte(in, 0x02) < 0     or
@@ -147,6 +147,7 @@ int Block::load_miner_tx(ifstream & in)
         return ERR_TRANS_PARSER_ERROR;
     }
 
+    // Skip the extras
     if(tools::skip_bytes(in, static_cast<unsigned int>(extras_count)) != static_cast<int>(extras_count))
     {
         std::cerr << "Transaction parser: Failed to skip extras." << std::endl;
@@ -173,15 +174,13 @@ int Block::load_miner_tx(ifstream & in)
 
 int Block::load_tx_hashes(ifstream & in)
 {
-    if(!in.good())
-    {
-        std::cerr << "Tx hashes: invalid stream." << std::endl;
+    // Read count of tx hashes
+    if (tools::read_varint(in, tx_hashes_count) < 0) {
+        std::cerr << "Tx hashes: could not read count of hashes." << std::endl;
         return ERR_TXH_PARSER_ERROR;
     }
     
-    unsigned char flag = 0;
-    in.read((char *) &flag, 1);
-    this->tx_hashes_count = flag;
+    // Alloc memory
     this->tx_hashes = new(std::nothrow) unsigned char[(HASH_SIZE * this->tx_hashes_count) * sizeof(unsigned char)];
     if(!this->tx_hashes)
     {
@@ -189,6 +188,7 @@ int Block::load_tx_hashes(ifstream & in)
         return ERR_TRANS_OUT_OF_MEM;
     }
     
+    // Read the hashes, one by one
     for(int i = 0; i < this->tx_hashes_count; i++)
     {
         if(!in.good())
