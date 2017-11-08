@@ -19,15 +19,13 @@
 int Parser::validate_block(string lower_filename, string higher_filename, bool print_hashes /* = false */) {
 
     if(lower_block.init_from_file(lower_filename) < 0 or
-       higher_block.init_from_file(higher_filename) < 0)
-    {
+       higher_block.init_from_file(higher_filename) < 0) {
         std::cerr << "Parser: Failed to initialize block." << std::endl;
         return ERR_PARSER_FAILED_TO_INIT;
     }
 
     unsigned char lower_hash[HASH_SIZE];
-    if(lower_block.get_block_hash(lower_hash))
-    {
+    if(lower_block.get_block_hash(lower_hash)) {
         std::cerr << "Parser: Failed to obtain hash result of lower block." << std::endl;
         return ERR_PARSER_FAILED_TO_VALIDATE;
     }
@@ -51,8 +49,7 @@ int Parser::validate_block(string lower_filename, string higher_filename, bool p
     }
 
     if(lower_block.clear_block() < 0 or
-       higher_block.clear_block() < 0)
-    {
+       higher_block.clear_block() < 0) {
         std::cerr << "Parser: Failed to clear a block." << std::endl;
         return ERR_PARSER_FAILED_TO_CLEAR;
     }
