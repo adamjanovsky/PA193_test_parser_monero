@@ -15,18 +15,17 @@
 #include <vector>
 #include <cstring>
 
-
 int Parser::validate_block(string lower_filename, string higher_filename, bool print_hashes /* = false */) {
-
+    // Initialize the blocks from given filenames
     if(lower_block.init_from_file(lower_filename) < 0 or
        higher_block.init_from_file(higher_filename) < 0) {
         std::cerr << "Parser: Failed to initialize block." << std::endl;
         return ERR_PARSER_FAILED_TO_INIT;
     }
 
-    std::array<unsigned char, HASH_SIZE> lower_hash;
-    std::array<unsigned char, HASH_SIZE> higher_prev_id;
-
+    // Get the block hash and block id from the next block
+    hash::hash_t lower_hash;
+    hash::hash_t higher_prev_id;
     if(lower_block.get_block_hash(lower_hash) or higher_block.get_prev_id(higher_prev_id)) {
         std::cerr << "Parser: Failed to obtain hash result of lower block." << std::endl;
         return ERR_PARSER_FAILED_TO_VALIDATE;
@@ -42,7 +41,8 @@ int Parser::validate_block(string lower_filename, string higher_filename, bool p
         printf("\n");
     }
     
-    if (memcmp(lower_hash.data(), higher_prev_id.data(), HASH_SIZE) == 0) {
+    // Compare the hash values to validate the block
+    if (memcmp(lower_hash.data(), higher_prev_id.data(), lower_hash.size()) == 0) {
         std::cout << "OK - The block is valid." << std::endl;
         return OK;
     } else {

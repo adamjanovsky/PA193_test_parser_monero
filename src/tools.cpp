@@ -143,13 +143,13 @@ void tools::hash(const unsigned char *input, size_t input_byte_len, unsigned cha
     const unsigned int rate                 = 1088;
     const unsigned int capacity             = 512;
     const unsigned char delimited_suffix    = 0x01;
-    const size_t output_length              = HASH_SIZE;
+    const size_t output_length              = hash::HASH_SIZE;
     
     // Hash
     Keccak(rate, capacity, input, input_byte_len, delimited_suffix, output, output_length);
 }
 
-int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<unsigned char, HASH_SIZE> & root_hash) {
+int tools::tree_hash(const std::vector<unsigned char> & hash_vect, hash::hash_t & root_hash) {
     
     // Check buf_len
     // - each hash is 32 bytes-long => buf_len must be a multiple of 32
@@ -167,16 +167,16 @@ int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<un
     }
     
     // Reintepret the hash_vect as array of 32 byte-long hashes
-    const unsigned char (* hashes) [HASH_SIZE] = reinterpret_cast<const unsigned char (*)[32]>(hash_vect.data());
+    const unsigned char (* hashes) [hash::HASH_SIZE] = reinterpret_cast<const unsigned char (*)[32]>(hash_vect.data());
     
     switch (hash_count) {
         case 1:
             // Just copy the single hash into the root_hash
-            memcpy(&root_hash[0], hashes, HASH_SIZE);
+            memcpy(&root_hash[0], hashes, root_hash.size());
             return OK;
         case 2:
             // Just hash the two hashes and put the result into root_hash
-            hash(hashes[0], 2 * HASH_SIZE, &root_hash[0]);
+            hash(hashes[0], 2 * hash::HASH_SIZE, &root_hash[0]);
             return OK;
             
         default:
@@ -189,8 +189,8 @@ int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<un
             while (int_nodes_count * 2 < hash_count) int_nodes_count *= 2;
             
             // Initialize the tree nodes
-            unsigned char (*nodes)[HASH_SIZE];
-            size_t nodes_size = int_nodes_count * HASH_SIZE;
+            unsigned char (*nodes)[hash::HASH_SIZE];
+            size_t nodes_size = int_nodes_count * hash::HASH_SIZE;
             std::vector<unsigned char> nodes_vect;
             nodes_vect.resize(nodes_size, 0x00);
             // Reinterpret the data as array of 32 bit arrays
@@ -200,7 +200,7 @@ int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<un
             // => some do not have a partner for hashing in the lowest layer
             // => we just copy these to the layer above
             size_t singles_count = int_nodes_count * 2 - hash_count;
-            memcpy(nodes, hashes, singles_count * HASH_SIZE);
+            memcpy(nodes, hashes, singles_count * hash::HASH_SIZE);
             
             // We will proceed and hash the remaining pairs of hashes
             size_t h_src; // points to the two concatenated hashes that will be hashed
@@ -212,7 +212,7 @@ int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<un
             for (h_src = singles_count, h_dst = singles_count;
                  h_dst < int_nodes_count;
                  h_src += 2, h_dst += 1) {
-                hash(hashes[h_src], 2 * HASH_SIZE, nodes[h_dst]);
+                hash(hashes[h_src], 2 * hash::HASH_SIZE, nodes[h_dst]);
             }
             
             // Next we perform the same thing until we are left with only 2 hashes (nodes)
@@ -223,13 +223,13 @@ int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<un
                 for (h_src = 0, h_dst = 0;
                      h_dst < int_nodes_count;
                      h_src += 2, ++h_dst) {
-                    hash(nodes[h_src], 2 * HASH_SIZE, nodes[h_dst]);
+                    hash(nodes[h_src], 2 * hash::HASH_SIZE, nodes[h_dst]);
                 }
             }
             
             // The last two hashes (= first two fields of ints)
             // are hashed and the result is put into the root hash
-            hash(nodes[0], 2 * HASH_SIZE, &root_hash[0]);
+            hash(nodes[0], 2 * hash::HASH_SIZE, &root_hash[0]);
             
             return OK;
     }

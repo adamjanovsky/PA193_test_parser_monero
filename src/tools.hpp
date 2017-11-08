@@ -73,11 +73,10 @@ namespace tools {
     /**
      Calculate root hash of a Merkle tree with the leaves being hashes of transactions.
      
-     @param hash_buffer concatenated hashes of transactions (32 bytes each hash)
-     @param buf_len length of the hash buffer (=> must be a multiple of 32)
-     @param root_hash where to store the root hash (32 bytes, needs to be allocated beforehand!)
+     @param hash_vect concatenated hashes of transactions (32 bytes each hash)
+     @param root_hash where to store the root hash
      */
-    int tree_hash(const std::vector<unsigned char> & hash_vect, std::array<unsigned char, HASH_SIZE> & root_hash);
+    int tree_hash(const std::vector<unsigned char> & hash_vect, hash::hash_t & root_hash);
 }
 
 #endif /* tools_hpp */

@@ -23,7 +23,6 @@ class Parser {
     Block lower_block;
     
 public:
-    
     /**
      Takes filenames of two blocks, one to validate and one assumed valid. Validates the block to validate and returns the result.
 

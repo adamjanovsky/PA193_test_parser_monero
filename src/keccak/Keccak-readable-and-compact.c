@@ -275,7 +275,7 @@ void Keccak(unsigned int rate, unsigned int capacity, const unsigned char *input
     
     /* === Absorb all the input blocks === */
     while(inputByteLen > 0) {
-        blockSize = MIN(inputByteLen, rateInBytes);
+        blockSize = MIN((unsigned int)inputByteLen, rateInBytes);
         for(i=0; i<blockSize; i++)
             state[i] ^= input[i];
         input += blockSize;
@@ -300,7 +300,7 @@ void Keccak(unsigned int rate, unsigned int capacity, const unsigned char *input
     
     /* === Squeeze out all the output blocks === */
     while(outputByteLen > 0) {
-        blockSize = MIN(outputByteLen, rateInBytes);
+        blockSize = MIN((unsigned int)outputByteLen, rateInBytes);
         memcpy(output, state, blockSize);
         output += blockSize;
         outputByteLen -= blockSize;

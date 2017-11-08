@@ -12,12 +12,12 @@
 #include <array>
 
 
-const int HASH_SIZE = 32;
-
 namespace hash {
     // Length of a hash in bytes
-
-    typedef std::array<unsigned char, HASH_SIZE> hash;
+    const int HASH_SIZE = 32;
+    
+    // Type for storing has values
+    typedef std::array<unsigned char, HASH_SIZE> hash_t;
 }
 
 #endif /* config_h */
