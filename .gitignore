@@ -1,6 +1,9 @@
 # Executables
 bin/**
 
+# radamsa - everybody should compile his own version
+radamsa
+
 # Xcode projects
 *.xcodeproj
 
