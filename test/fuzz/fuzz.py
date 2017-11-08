@@ -1,11 +1,13 @@
 import os
 import subprocess
 
+# You have to get (compile) your own copy of radamsa and point to it here
 RADAMSA = "./radamsa"
-TMPLT_BLOCK = "./template_block.bin"
-TEST_BLOCK = "./test_block.bin"
-CRASH_BLOCK = "./crashed_blocks/crash_block_"
-PARSER = "./../../bin/parser"
+
+TMPLT_BLOCK 	= "./template_block.bin"			# Template block for radamsa
+TEST_BLOCK 		= "./test_block.bin"				# Test block for the parser (will be created by radamsa)
+CRASH_BLOCK 	= "./crashed_blocks/crash_block_"	# To store test blocks when the parser crashes
+PARSER 			= "./../../bin/parser"				# Where parser binary is located
 
 ROUNDS = 10000
 
