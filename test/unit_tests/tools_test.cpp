@@ -251,11 +251,11 @@ namespace {
     
     TEST(TreeHash, HandlesLengthOne) {
         // Source
-        const size_t source_len = HASH_SIZE;
-        unsigned char source[source_len];
+        const size_t source_len = hash::HASH_SIZE;
+        std::vector<unsigned char> source;
         
         // All bits set to 0x00
-        memset(source, 0x00, source_len);
+        source.resize(source_len, 0x00);
         
         // Expected result - produced by the original Monero code
         unsigned char result_expected [] = {
@@ -266,22 +266,21 @@ namespace {
         };
         
         // Calculate our result
-        unsigned char result[HASH_SIZE];
-        tools::tree_hash(source, source_len, result);
+        hash::hash_t result;
+        tools::tree_hash(source, result);
         
         // Compare
-        ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
+        ASSERT_EQ(0, memcmp(result_expected, result.data(), hash::HASH_SIZE));
     }
     
     TEST(TreeHash, HandlesLenghtTwo) {
-        
         // Source
-        const size_t source_len = HASH_SIZE * 2;
-        unsigned char source[source_len];
+        const size_t source_len = hash::HASH_SIZE * 2;
+        std::vector<unsigned char> source;
         
         // All bits set to 0x01
-        memset(source, 0x01, source_len);
-        
+        source.resize(source_len, 0x01);
+
         // Expected result - produced by the original Monero code
         unsigned char result_expected [] = {
             0x40, 0x16, 0x17, 0xbc, 0x4f, 0x76, 0x93, 0x81,
@@ -291,22 +290,21 @@ namespace {
         };
         
         // Calculate our result
-        unsigned char result[HASH_SIZE];
-        tools::tree_hash(source, source_len, result);
+        hash::hash_t result;
+        tools::tree_hash(source, result);
         
         // Compare
-        ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
+        ASSERT_EQ(0, memcmp(result_expected, result.data(), hash::HASH_SIZE));
     }
     
     TEST(TreeHash, HandlesLengthPowerOfTwo) {
-        
         // Source
-        const size_t source_len = HASH_SIZE * 32;
-        unsigned char source[source_len];
+        const size_t source_len = hash::HASH_SIZE * 32;
+        std::vector<unsigned char> source;
         
-        // All bytes set to 0x02
-        memset(source, 0x02, source_len);
-        
+        // All bits set to 0x02
+        source.resize(source_len, 0x02);
+
         // Expected result - produced by the original Monero code
         unsigned char result_expected [] = {
             0xb4, 0x3c, 0x04, 0xff, 0x16, 0x08, 0x76, 0x85,
@@ -316,22 +314,21 @@ namespace {
         };
         
         // Calculate our result
-        unsigned char result[HASH_SIZE];
-        tools::tree_hash(source, source_len, result);
+        hash::hash_t result;
+        tools::tree_hash(source, result);
         
         // Compare
-        ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
+        ASSERT_EQ(0, memcmp(result_expected, result.data(), hash::HASH_SIZE));
     }
     
     TEST(TreeHash, HandlesLengthNotPowerOfTwo) {
-        
         // Source
-        const size_t source_len = HASH_SIZE * 33;
-        unsigned char source[source_len];
+        const size_t source_len = hash::HASH_SIZE * 33;
+        std::vector<unsigned char> source;
         
-        // All bytes set to 0x03
-        memset(source, 0x03, source_len);
-        
+        // All bits set to 0x03
+        source.resize(source_len, 0x03);
+
         // Expected result - produced by the original Monero code
         unsigned char result_expected [] = {
             0xad, 0x02, 0x33, 0x87, 0x53, 0x41, 0x94, 0xc4,
@@ -341,59 +338,37 @@ namespace {
         };
         
         // Calculate our result
-        unsigned char result[HASH_SIZE];
-        tools::tree_hash(source, source_len, result);
+        hash::hash_t result;
+        tools::tree_hash(source, result);
         
         // Compare
-        ASSERT_EQ(0, memcmp(result_expected, result, HASH_SIZE));
-    }
-    
-    TEST(TreeHash, DiesOnNullInputBuffer) {
-        unsigned char * source = NULL;
-        unsigned char result[32];
-        size_t length = 1;
-        
-        ASSERT_EQ(ERR_THASH_NULL_INPUT, tools::tree_hash(source, length, result));
-    }
-    
-    TEST(TreeHash, DiesOnNullOutputBuffer) {
-        unsigned char source[32];
-        unsigned char * result = NULL;
-        size_t length = 1;
-        
-        ASSERT_EQ(ERR_THASH_NULL_INPUT, tools::tree_hash(source, length, result));
-    }
-    
-    TEST(TreeHash, DiesOnNegativeLength) {
-        unsigned char source[32];
-        unsigned char result[32];
-        size_t length = -1;
-
-        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
+        ASSERT_EQ(0, memcmp(result_expected, result.data(), hash::HASH_SIZE));
     }
     
     TEST(TreeHash, DiesOnZeroLength) {
-        unsigned char source[32];
-        unsigned char result[32];
-        size_t length = 0;
+        std::vector<unsigned char> source;
+        source.resize(0);
+        hash::hash_t result;
         
-        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, result));
     }
     
     TEST(TreeHash, DiesOnLengthNotDivisibleBy32) {
-        unsigned char source[32];
-        unsigned char result[32];
-        size_t length = 5;
+        std::vector<unsigned char> source;
+        source.resize(33);
+        hash::hash_t result;
         
-        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, result));
     }
+
     
     TEST(TreeHash, DiesOnExcessiveLength) {
-        unsigned char source[32];
-        unsigned char result[32];
-        size_t length = 0x10000001; // 0x10000000 is the upper bound in Monero project
+        const size_t length = 0x10000001; // 0x10000000 is the upper bound in Monero project
+        std::vector<unsigned char> source;
+        source.resize(length);
+        hash::hash_t result;
         
-        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, length, result));
+        ASSERT_EQ(ERR_THASH_INVALID_IN_LEN, tools::tree_hash(source, result));
     }
     
 }  // namespace
