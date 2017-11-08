@@ -83,13 +83,13 @@ testable_test : testable.o testable_test.o gtest_main.a
 
 # hash and tree hash
 
-keccak.o : $(USER_DIR)/keccak/Keccak-readable-and-compact.h $(USER_DIR)/keccak/Keccak-readable-and-compact.c $(USER_DIR)/config.hpp $(GTEST_HEADERS)
+keccak.o : $(USER_DIR)/keccak/Keccak-readable-and-compact.h $(USER_DIR)/keccak/Keccak-readable-and-compact.c $(USER_DIR)/hash.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o keccak.o -c $(USER_DIR)/keccak/Keccak-readable-and-compact.c
 
-tools.o : $(USER_DIR)/tools.cpp $(USER_DIR)/tools.hpp $(USER_DIR)/config.hpp $(GTEST_HEADERS)
+tools.o : $(USER_DIR)/tools.cpp $(USER_DIR)/tools.hpp $(USER_DIR)/hash.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/tools.cpp
 
-tools_test.o : $(TEST_DIR)/tools_test.cpp $(USER_DIR)/tools.hpp $(USER_DIR)/config.hpp $(GTEST_HEADERS)
+tools_test.o : $(TEST_DIR)/tools_test.cpp $(USER_DIR)/tools.hpp $(USER_DIR)/hash.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/tools_test.cpp
 
 tools_test : tools.o keccak.o tools_test.o gtest_main.a
