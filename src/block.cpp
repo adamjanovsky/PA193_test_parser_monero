@@ -16,7 +16,7 @@
 #include "error.hpp"
 #include "hash.hpp"
 
-int Block::get_prev_id(hash::hash_t & prev_id_copy) {
+int Block::get_prev_id(hash::hash_t & prev_id_copy) const {
     if (this->initialized) {
         std::copy(prev_id.begin(), prev_id.end(), prev_id_copy.begin());
         return OK;
@@ -218,7 +218,7 @@ int Block::load_tx_hashes(ifstream & in) {
     return OK;
 }
 
-int Block::get_miner_tx_hash(hash::hash_t & miner_tx_hash) {
+int Block::get_miner_tx_hash(hash::hash_t & miner_tx_hash) const {
     switch (this->miner_tx_version) {
         case 1:
             tools::hash(miner_tx_data.data(), miner_tx_data.size(), &miner_tx_hash[0]);
@@ -244,7 +244,7 @@ int Block::get_miner_tx_hash(hash::hash_t & miner_tx_hash) {
     }
 }
 
-int Block::get_block_hash(hash::hash_t & block_hash) {
+int Block::get_block_hash(hash::hash_t & block_hash) const {
     // Exit if the block is not initialized
     if (this->initialized == false) {
         return ERR_BL_NOT_INITIALIZED;
@@ -252,8 +252,7 @@ int Block::get_block_hash(hash::hash_t & block_hash) {
     
     hash::hash_t miner_tx_hash;
 
-    if(this->get_miner_tx_hash(miner_tx_hash))
-    {
+    if(get_miner_tx_hash(miner_tx_hash)) {
         std::cerr << "Block hash: Failed to obtain miner_tx hash." << std::endl;
         return ERR_BL_HASH_MINER_TX_FAIL;
     }

@@ -69,7 +69,7 @@ class Block {
      * @param miner_tx_hash - the unsigned array to store the result into
      * @return 0 if ok, neg if not
      */
-    int get_miner_tx_hash(hash::hash_t & miner_tx_hash);
+    int get_miner_tx_hash(hash::hash_t & miner_tx_hash) const;
     
 public:
     
@@ -92,7 +92,7 @@ public:
      @param prev_id_copy copy of hash of the previous block
      @return 0 if ok, negative if error (block unitialized)
      */
-    int get_prev_id(hash::hash_t & prev_id_copy);
+    int get_prev_id(hash::hash_t & prev_id_copy) const;
     
     /**
      Calculate and return hash of this block
@@ -100,7 +100,7 @@ public:
      @param block_hash where to store the hash
      @return 0 if ok, negative otherwise
      */
-    int get_block_hash(hash::hash_t & block_hash);
+    int get_block_hash(hash::hash_t & block_hash) const;
 };
 
 
