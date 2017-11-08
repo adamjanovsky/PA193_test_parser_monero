@@ -14,7 +14,51 @@
 #include "block.hpp"
 #include "tools.hpp"
 #include "error.hpp"
-#include "config.hpp"
+#include "hash.hpp"
+
+int Block::get_prev_id(std::array<unsigned char, HASH_SIZE> & prev_id_copy) {
+    if (this->initialized) {
+        std::copy(prev_id.begin(), prev_id.end(), prev_id_copy.begin());
+        return OK;
+    } else {
+        return ERR_BL_NOT_INITIALIZED;
+    }
+}
+
+int Block::init_from_file(string filename) {
+    // set init to false to be sure the block stays unitialized if we encounter an error in the middle of init
+    initialized = false;
+    
+    // Open the in file
+    std::ifstream in_file(filename);
+    if (!in_file.is_open()) {
+        std::cout << "Could not open file: " << filename << std::endl;
+        return ERR_BL_INIT_FILE_ERROR;
+    }
+    this->filename = filename;
+    
+    // Try to parse header, miner_tx and tx_hashes
+    
+    if (load_header(in_file) < 0 || !in_file.good()) {
+        std::cerr << "Block header: Could not parse block header." << std::endl;
+        return ERR_BL_INIT_HEADER;
+    }
+    
+    if (load_miner_tx(in_file) < 0 || !in_file.good()) {
+        std::cerr << "Block header: Could not parse miner transaction." << std::endl;
+        return ERR_BL_INIT_MINER_TX;
+    }
+    
+    if (load_tx_hashes(in_file) < 0) {
+        std::cerr << "Block header: Could not parse transaction hashes." << std::endl;
+        return ERR_BL_INIT_TX_HASHES;
+    }
+    
+    // Everything went fine...
+    initialized = true;
+    return OK;
+}
+
 
 int Block::load_header(ifstream & in) {
     // To be sure, move to the beginning of the stream
@@ -30,7 +74,7 @@ int Block::load_header(ifstream & in) {
     }
 
     // Alloc and load the hash
-    in.read((char *)prev_id, HASH_SIZE);
+    in.read(reinterpret_cast<char *>(&prev_id[0]), HASH_SIZE);
     if (!in.good()) {
         std::cerr << "Block header: Unexpected end of file." << std::endl;
         return ERR_BL_LOADHDR_EOF;
@@ -43,18 +87,14 @@ int Block::load_header(ifstream & in) {
     }
 
     // Get the header length
-    block_header_length = in.tellg();
+    long long block_header_length = in.tellg();
 
     // Alloc space for the header
-    this->block_header = new(std::nothrow) unsigned char[block_header_length];
-    if (!this->block_header) {
-        std::cerr << "Block header: Out of memory." << std::endl;
-        return ERR_BL_LOADHDR_OUT_OF_MEM;
-    }
+    block_header.resize(block_header_length, 0x00);
 
     // Read the whole header
     in.seekg(in.beg);
-    in.read((char *)this->block_header, block_header_length);
+    in.read(reinterpret_cast<char *>(&block_header[0]), block_header_length);
 
     // To be sure, check once more if we have loaded the header sucessfully
     if (!in.good()) {
@@ -62,38 +102,6 @@ int Block::load_header(ifstream & in) {
         return ERR_BL_LOADHDR_EOF;
     }
 
-    return OK;
-}
-
-int Block::init_from_file(string filename) {
-
-    // Open the in file
-    std::ifstream in_file(filename);
-    if (!in_file.is_open()) {
-        std::cout << "Could not open file: " << filename << std::endl;
-        return ERR_BL_INIT_FILE_ERROR;
-    }
-    this->filename = filename;
-
-    // Try to parse header, miner_tx and tx_hashes
-
-    if (load_header(in_file) < 0 || !in_file.good()) {
-        std::cerr << "Block header: Could not parse block header." << std::endl;
-        return ERR_BL_INIT_HEADER;
-    }
-
-    if (load_miner_tx(in_file) < 0 || !in_file.good()) {
-        std::cerr << "Block header: Could not parse miner transaction." << std::endl;
-        return ERR_BL_INIT_MINER_TX;
-    }
-
-    if (load_tx_hashes(in_file) < 0) {
-        std::cerr << "Block header: Could not parse transaction hashes." << std::endl;
-        return ERR_BL_INIT_TX_HASHES;
-    }
-
-    // Everything went fine...
-    initialized = true;
     return OK;
 }
 
@@ -130,8 +138,6 @@ int Block::load_miner_tx(ifstream & in)
         return ERR_TRANS_PARSER_ERROR;
     }
 
-
-
     // Read number of output trans
     unsigned long tx_out_count;
     if (tools::read_varint(in, tx_out_count) < 0) {
@@ -154,7 +160,6 @@ int Block::load_miner_tx(ifstream & in)
         }
     }
 
-
     // Get number of extras
     unsigned long int extras_count;
     if(tools::read_varint(in, extras_count) < 0)
@@ -170,28 +175,18 @@ int Block::load_miner_tx(ifstream & in)
         return ERR_TRANS_PARSER_ERROR;
     }
 
-
-
-    // Get the position, calculate and save the complete length
+    // Get the position and calculate the complete length
     long long end_pos = in.tellg();
     in.seekg(start_pos);
-    miner_tx_length = end_pos - start_pos;
-
-    this->miner_tx = new(std::nothrow) unsigned char[miner_tx_length * sizeof(unsigned char)];
-    if(!this->miner_tx)
-    {
-        std::cerr << "Miner tx: Out of memory." << std::endl;
-        return ERR_TRANS_OUT_OF_MEM;
-    }
+    long long miner_tx_length = end_pos - start_pos;
 
     // Read the entire miner_tx to memory
-    in.read((char *) this->miner_tx, end_pos - start_pos);
+    miner_tx_data.resize(miner_tx_length, 0x00);
+    in.read(reinterpret_cast<char *>(&miner_tx_data[0]), miner_tx_length);
 
     // v2: skip one zero byte
-    if(this->miner_tx_version == 2)
-    {
-        if(tools::expect_byte(in, 0x00))
-        {
+    if(this->miner_tx_version == 2) {
+        if(tools::expect_byte(in, 0x00)) {
             std::cerr << "Transaction parser: Invalid header format." << std::endl;
             return ERR_TRANS_PARSER_ERROR;
         }
@@ -210,30 +205,20 @@ int Block::load_tx_hashes(ifstream & in)
     }
 
     // Alloc memory
-    this->tx_hashes = new(std::nothrow) unsigned char[(HASH_SIZE * this->tx_hashes_count) * sizeof(unsigned char)];
-    if(!this->tx_hashes)
-    {
-        std::cerr << "Tx hashes: Out of memory." << std::endl;
-        return ERR_TRANS_OUT_OF_MEM;
-    }
+    tx_hashes.resize(tx_hashes_count * HASH_SIZE, 0x00);
 
-    // Read the hashes, one by one
-    for(int i = 0; i < this->tx_hashes_count; i++)
-    {
-        if(!in.good())
-        {
-            std::cerr << "Tx hashes: invalid stream." << std::endl;
-            return ERR_TXH_PARSER_ERROR;
-        }
-        in.read((char *) (this->tx_hashes + HASH_SIZE * i), HASH_SIZE);
+    // Read the hashes
+    in.read(reinterpret_cast<char *>(&tx_hashes[0]), tx_hashes.size());
+    if(!in.good()) {
+        std::cerr << "Tx hashes: invalid stream." << std::endl;
+        return ERR_TXH_PARSER_ERROR;
     }
-
 
     // Try to read one more byte and test EOF
     char c;
     in.read(&c, 1);
-    if(!in.eof()) // some bytes remain, weird?
-    {
+    if(!in.eof()) {
+        // still some bytes to read, weird
         std::cerr << "Tx hashes: Blocked parsed but some bytes are remaining." << std::endl;
         return ERR_TXH_NO_EOF;
     }
@@ -241,11 +226,11 @@ int Block::load_tx_hashes(ifstream & in)
     return OK;
 }
 
-int Block::get_miner_tx_hash(unsigned char * hash)
+int Block::get_miner_tx_hash(std::array<unsigned char, HASH_SIZE> & miner_tx_hash)
 {
     if(this->miner_tx_version == 1)
     {
-        tools::hash(miner_tx, miner_tx_length, hash);
+        tools::hash(miner_tx_data.data(), miner_tx_data.size(), &miner_tx_hash[0]);
         return OK;
     }
 
@@ -254,24 +239,24 @@ int Block::get_miner_tx_hash(unsigned char * hash)
         unsigned char to_hash[3 * HASH_SIZE];
 
         // to_hash[0]
-        tools::hash(miner_tx, miner_tx_length, to_hash);
+        tools::hash(miner_tx_data.data(), miner_tx_data.size(), to_hash);
 
         // to_hash[1]
         unsigned char zero_byte[1] = {0x00};
         tools::hash(zero_byte, 1, to_hash + HASH_SIZE);
 
         // to_hash[2]
-        memset(to_hash + 2*HASH_SIZE, 0, HASH_SIZE);
+        memset(to_hash + 2 * HASH_SIZE, 0, HASH_SIZE);
 
-        tools::hash(to_hash, 3 * HASH_SIZE, hash);
+        tools::hash(to_hash, 3 * HASH_SIZE, &miner_tx_hash[0]);
         return OK;
     }
 
     return ERR_BL_HASH_TRANS_WRONG_VERSION;
 }
 
-int Block::get_block_hash(unsigned char * hash) {
-    unsigned char miner_tx_hash[HASH_SIZE];
+int Block::get_block_hash(std::array<unsigned char, HASH_SIZE> & block_hash) {
+    std::array<unsigned char, HASH_SIZE> miner_tx_hash;
 
     if(this->get_miner_tx_hash(miner_tx_hash))
     {
@@ -279,14 +264,12 @@ int Block::get_block_hash(unsigned char * hash) {
         return ERR_BL_HASH_MINER_TX_FAIL;
     }
 
-
-
     std::vector<unsigned char> all_hashes_vect;
 
     // push back the miner_tx hash
-    all_hashes_vect.insert(all_hashes_vect.end(), &miner_tx_hash[0], &miner_tx_hash[HASH_SIZE]);
+    all_hashes_vect.insert(all_hashes_vect.end(), miner_tx_hash.begin(), miner_tx_hash.end());
     // push back the other hashes
-    all_hashes_vect.insert(all_hashes_vect.end(), &tx_hashes[0], &tx_hashes[tx_hashes_count * HASH_SIZE]);
+    all_hashes_vect.insert(all_hashes_vect.end(), tx_hashes.begin(), tx_hashes.end());
 
     // get the tree root hash
     std::array<unsigned char, HASH_SIZE> tree_root_hash;
@@ -295,9 +278,9 @@ int Block::get_block_hash(unsigned char * hash) {
     // blob that will be hashed to get the block hash
     std::vector<unsigned char>hashing_blob;
     // push back the block header
-    hashing_blob.insert(hashing_blob.end(), &block_header[0], &block_header[block_header_length]);
+    hashing_blob.insert(hashing_blob.end(), block_header.begin(), block_header.end());
     // push back the tree root hash
-    hashing_blob.insert(hashing_blob.end(), &tree_root_hash[0], &tree_root_hash[HASH_SIZE]);
+    hashing_blob.insert(hashing_blob.end(), tree_root_hash.begin(), tree_root_hash.end());
 
     // count all transactions including the miner tx
     unsigned long all_tx_count = 1 + tx_hashes_count;
@@ -307,26 +290,7 @@ int Block::get_block_hash(unsigned char * hash) {
     unsigned char vect_size = static_cast<unsigned char>(hashing_blob.size());
     hashing_blob.insert(hashing_blob.begin(), vect_size);
 
-    tools::hash(hashing_blob.data(), hashing_blob.size(), hash);
-
-    return OK;
-}
-
-
-int Block::clear_block() {
-    initialized = false;
-    filename = "";
-
-    if (block_header and block_header != nullptr) delete [] block_header;
-    if (miner_tx and miner_tx != nullptr) delete [] miner_tx;
-    if (tx_hashes and tx_hashes != nullptr) delete [] tx_hashes;
-
-    memset(prev_id, 0, HASH_SIZE);
-
-    block_header_length = 0;
-    tx_hashes_count = 0;
-    miner_tx_length = 0;
-    miner_tx_version = 0;
+    tools::hash(hashing_blob.data(), hashing_blob.size(), &block_hash[0]);
 
     return OK;
 }

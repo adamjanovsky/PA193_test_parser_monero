@@ -11,7 +11,7 @@
 #include <vector>
 #include "keccak/Keccak-readable-and-compact.h"
 #include "tools.hpp"
-#include "config.hpp"
+#include "hash.hpp"
 #include "error.hpp"
 
 

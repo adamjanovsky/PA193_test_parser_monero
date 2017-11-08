@@ -39,6 +39,9 @@
 
 // # Block
 
+// Get hash and get prev id
+#define ERR_BL_NOT_INITIALIZED      -1
+
 // Load header
 #define ERR_BL_LOADHDR_INVALID_FORMAT   -1
 #define ERR_BL_LOADHDR_OUT_OF_MEM       -2
@@ -69,6 +72,7 @@
 
 // # Parser
 
+#define ERR_PARSER_BLOCK_INVALID        1
 #define ERR_PARSER_FAILED_TO_VALIDATE   -1
 #define ERR_PARSER_FAILED_TO_CLEAR      -2
 #define ERR_PARSER_FAILED_TO_INIT       -3

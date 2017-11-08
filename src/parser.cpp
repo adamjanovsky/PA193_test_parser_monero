@@ -7,7 +7,7 @@
 //
 
 #include "parser.hpp"
-#include "config.hpp"
+#include "hash.hpp"
 #include "error.hpp"
 
 #include <fstream>
@@ -24,35 +24,29 @@ int Parser::validate_block(string lower_filename, string higher_filename, bool p
         return ERR_PARSER_FAILED_TO_INIT;
     }
 
-    unsigned char lower_hash[HASH_SIZE];
-    if(lower_block.get_block_hash(lower_hash)) {
+    std::array<unsigned char, HASH_SIZE> lower_hash;
+    std::array<unsigned char, HASH_SIZE> higher_prev_id;
+
+    if(lower_block.get_block_hash(lower_hash) or higher_block.get_prev_id(higher_prev_id)) {
         std::cerr << "Parser: Failed to obtain hash result of lower block." << std::endl;
         return ERR_PARSER_FAILED_TO_VALIDATE;
     }
 
-    const unsigned char * higher_hash= higher_block.get_prev_id();
-
+    // Print the hashes if desired
     if (print_hashes) {
         printf("Lower hash:  ");
-        for(int i = 0; i < HASH_SIZE; i++) printf("%02x", lower_hash[i]);
+        for(int i = 0; i < lower_hash.size(); i++) printf("%02x", lower_hash[i]);
         printf("\n");
         printf("Higher hash: ");
-        for(int i = 0; i < HASH_SIZE; i++) printf("%02x", higher_hash[i]);
+        for(int i = 0; i < higher_prev_id.size(); i++) printf("%02x", higher_prev_id[i]);
         printf("\n");
     }
     
-    int result = (memcmp(lower_hash, higher_hash, HASH_SIZE)) ? 1 : 0;
-    if (result == 0) {
+    if (memcmp(lower_hash.data(), higher_prev_id.data(), HASH_SIZE) == 0) {
         std::cout << "OK - The block is valid." << std::endl;
+        return OK;
     } else {
         std::cout << "ERR - The block is not valid." << std::endl;
+        return ERR_PARSER_BLOCK_INVALID;
     }
-
-    if(lower_block.clear_block() < 0 or
-       higher_block.clear_block() < 0) {
-        std::cerr << "Parser: Failed to clear a block." << std::endl;
-        return ERR_PARSER_FAILED_TO_CLEAR;
-    }
-
-    return result;
 }

@@ -10,7 +10,7 @@
 #define tools_hpp
 
 #include <stdio.h>
-#include "config.hpp"
+#include "hash.hpp"
 #include <istream>
 #include <vector>
 #include <array>

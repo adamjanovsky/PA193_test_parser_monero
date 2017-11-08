@@ -9,7 +9,15 @@
 #ifndef config_hpp
 #define config_hpp
 
-// Length of a hash in bytes
+#include <array>
+
+
 const int HASH_SIZE = 32;
+
+namespace hash {
+    // Length of a hash in bytes
+
+    typedef std::array<unsigned char, HASH_SIZE> hash;
+}
 
 #endif /* config_h */
