@@ -15,70 +15,45 @@
 #include <vector>
 #include <cstring>
 
-    Parser::Parser()
-    {
-        higher_block = new Block();
-        lower_block = new Block();
-    }
 
-    Parser::~Parser()
-    {
-        delete higher_block;
-        delete lower_block;
-    }
+int Parser::validate_block(string lower_filename, string higher_filename, bool print_hashes /* = false */) {
 
-int Parser::validate_block(string lower_filename, string higher_filename) {
-
-    if(this->lower_block->init_from_file(lower_filename))
+    if(lower_block.init_from_file(lower_filename) < 0 or
+       higher_block.init_from_file(higher_filename) < 0)
     {
-        std::cerr << "Parser: Failed to initialize lower block." << std::endl;
-        return ERR_PARSER_FAILED_TO_INIT;
-    }
-
-    if(this->higher_block->init_from_file(higher_filename))
-    {
-        std::cerr << "Parser: Failed to initialize higher block." << std::endl;
+        std::cerr << "Parser: Failed to initialize block." << std::endl;
         return ERR_PARSER_FAILED_TO_INIT;
     }
 
     unsigned char lower_hash[HASH_SIZE];
-    if(this->lower_block->get_block_hash(lower_hash))
+    if(lower_block.get_block_hash(lower_hash))
     {
         std::cerr << "Parser: Failed to obtain hash result of lower block." << std::endl;
         return ERR_PARSER_FAILED_TO_VALIDATE;
     }
 
-    unsigned char higher_hash[HASH_SIZE];
-    this->higher_block->get_prev_id();
-    if(higher_hash == nullptr)
-    {
-        std::cerr << "Parser: Failed to obtain hash result of higher block." << std::endl;
-        return ERR_PARSER_FAILED_TO_VALIDATE;
-    }
+    const unsigned char * higher_hash= higher_block.get_prev_id();
 
-    printf("Lower hash: ");
-    for(int i = 0; i < HASH_SIZE; i++)
-    {
-        printf("%02x", lower_hash[i]);
+    if (print_hashes) {
+        printf("Lower hash:  ");
+        for(int i = 0; i < HASH_SIZE; i++) printf("%02x", lower_hash[i]);
+        printf("\n");
+        printf("Higher hash: ");
+        for(int i = 0; i < HASH_SIZE; i++) printf("%02x", higher_hash[i]);
+        printf("\n");
     }
-
-    printf("\nHigher hash: ");
-    for(int i = 0; i < HASH_SIZE; i++)
-    {
-        printf("%02x", higher_hash[i]);
-    }
-
+    
     int result = (memcmp(lower_hash, higher_hash, HASH_SIZE)) ? 1 : 0;
-
-    if(this->lower_block->clear_block())
-    {
-        std::cerr << "Parser: Failed to clear lower block." << std::endl;
-        return ERR_PARSER_FAILED_TO_CLEAR;
+    if (result == 0) {
+        std::cout << "OK - The block is valid." << std::endl;
+    } else {
+        std::cout << "ERR - The block is not valid." << std::endl;
     }
 
-    if(this->higher_block->clear_block())
+    if(lower_block.clear_block() < 0 or
+       higher_block.clear_block() < 0)
     {
-        std::cerr << "Parser: Failed to clear higher block." << std::endl;
+        std::cerr << "Parser: Failed to clear a block." << std::endl;
         return ERR_PARSER_FAILED_TO_CLEAR;
     }
 
