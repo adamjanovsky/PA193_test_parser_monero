@@ -285,5 +285,12 @@ int Block::get_block_hash(hash::hash_t & block_hash) const {
 
     tools::hash(hashing_blob.data(), hashing_blob.size(), &block_hash[0]);
 
+    // corrupted block, see monero source crypto/cryptonote_format_utils.cpp and function calculate_block_hash
+    // we've solved it by hardcoded value, similarly to authors of monero
+    if(block_hash.size() == hash::corruptedBlockHash.size() and !memcmp(block_hash.data(), hash::corruptedBlockHash.data(), hash::HASH_SIZE))
+    {
+        memcpy(block_hash.data(), hash::corruptedBlockHashCorrected.data(), hash::HASH_SIZE);
+    }
+
     return OK;
 }
