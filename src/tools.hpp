@@ -18,63 +18,56 @@
 namespace tools {
     
     /**
-     Read a byte in the stream and check that it matches the expected value.
-
-     @param in stream to read from
-     @param expected_byte expected value of the next bute
-     @return 0 if ok, neg otherwise
+     * @brief - Read a byte in the stream and check that it matches the expected value.
+     * @param in - stream to read from
+     * @param expected_byte - expected value of the next bute
+     * @return - 0 if ok, neg otherwise
      */
     int expect_byte(std::istream & in, unsigned char expected_byte);
     
     /**
-     Serialize varint to a vector (append the bytes)
-
-     @param out_vect push back the bytes to this vect
-     @param val value to serialize
-     @return 0 if ok, negative otherwise
+     * @brief - Serialize varint to a vector (append the bytes)
+     * @param out_vect - push back the bytes to this vect
+     * @param val - value to serialize
+     * @return - 0 if ok, negative otherwise
      */
     int write_varint(std::vector<unsigned char> & out_vect, unsigned long val);
     
     /**
-     Read a serialized varint from a stream
-
-     @param in stream to read the varint from
-     @param val where to save the varint
-     @return 0 if ok, negative otherwise
+     * @brief - Read a serialized varint from a stream
+     * @param in - stream to read the varint from
+     * @param val - where to save the varint
+     * @return - 0 if ok, negative otherwise
      */
     int read_varint(std::istream & in, unsigned long & val);
     
     /**
-     Skips a serialized varint in the input stream.
-
-     @param in stream to read from
-     @return number of bytes skipped if ok, negative val if error
+     * @brief - Skips a serialized varint in the input stream.
+     * @param in - stream to read from
+     * @return - number of bytes skipped if ok, negative val if error
      */
     int skip_varint(std::istream & in);
     
     /**
-     Skips a desired amount of bytes in stream and checks whether the stream did not end in the process.
-
-     @param in stream to skip the bytes in
-     @param length how many bytes to skip
-     @return length if ok, negative val if error
+     * @brief - Skips a desired amount of bytes in stream and checks whether the stream did not end in the process.
+     * @param in - stream to skip the bytes in
+     * @param - length how many bytes to skip
+     * @return - length if ok, negative val if error
      */
     int skip_bytes(std::istream & in, unsigned int length);
     
     /**
-     Executes Keccak hash function with parameters extracted from monero.
-     
-     @param input input to the hash function
-     @param input_byte_len length of the input
-     @param output where to store the output (32 bytes, needs to be allocated beforehand!)
+     * @brief - Executes Keccak hash function with parameters extracted from monero.
+     * @param input - input to the hash function
+     * @param input_byte_len - length of the input
+     * @param output - where to store the output (32 bytes, needs to be allocated beforehand!)
      */
     void hash(const unsigned char *input, size_t input_byte_len, char unsigned *output);
     
     /**
-     Calculate root hash of a Merkle tree with the leaves being hashes of transactions.
-     
-     @param hash_vect concatenated hashes of transactions (32 bytes each hash)
-     @param root_hash where to store the root hash
+     * @brief - Calculate root hash of a Merkle tree with the leaves being hashes of transactions.
+     * @param hash_vect - concatenated hashes of transactions (32 bytes each hash)
+     * @param root_hash - where to store the root hash
      */
     int tree_hash(const std::vector<unsigned char> & hash_vect, hash::hash_t & root_hash);
 }
