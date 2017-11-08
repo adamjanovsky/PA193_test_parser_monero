@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <cstring>
 
 #include "block.hpp"
 #include "tools.hpp"
@@ -221,8 +222,14 @@ int Block::load_miner_tx(ifstream & in)
 
 
     // flag, number of extras
-    in.read((char *) &flag, 1);
-    int numOfExtras = (int) flag;
+
+    unsigned long int numOfExtras;
+    if(tools::read_varint(in, numOfExtras) < 0)
+    {
+        std::cerr << "Transaction parser: failed to read number of extras." << std::endl;
+        return ERR_TRANS_PARSER_ERROR;
+    }
+    //printf("Skipping: %d bytes\n", numOfExtras);
 
     if(!in.good())
         {
@@ -248,7 +255,7 @@ int Block::load_miner_tx(ifstream & in)
 
     in.read((char *) this->miner_tx, endPosition - startPosition);
     miner_tx_length = endPosition - startPosition;
-    
+
     return OK;
 }
 
@@ -263,7 +270,6 @@ int Block::load_tx_hashes(ifstream & in)
     unsigned char flag = 0;
     in.read((char *) &flag, 1);
     this->tx_hashes_count = flag;
-
     this->tx_hashes = new(std::nothrow) unsigned char[(HASH_SIZE * this->tx_hashes_count) * sizeof(unsigned char)];
     if(!this->tx_hashes)
     {
