@@ -247,12 +247,6 @@ namespace {
         ASSERT_EQ(ERR_SKIPB_INVALID_LENGTH, tools::skip_bytes(ss, 0));
     }
     
-    TEST(SkipBytes, ExitsOnNegativeLength) {
-        std::stringstream ss;
-        
-        ASSERT_EQ(ERR_SKIPB_INVALID_LENGTH, tools::skip_bytes(ss, -1));
-    }
-    
     // Tree hash
     
     TEST(TreeHash, HandlesLengthOne) {

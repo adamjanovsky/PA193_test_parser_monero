@@ -125,7 +125,7 @@ int tools::skip_varint(std::istream & in) {
 }
 
 int tools::skip_bytes(std::istream & in, unsigned int length) {
-    if (length <= 0) {
+    if (length == 0) {
         std::cerr << "Skip bytes: Invalid length." << std::endl;
         return ERR_SKIPB_INVALID_LENGTH;
     }
