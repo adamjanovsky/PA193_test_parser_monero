@@ -13,6 +13,7 @@
 #include "config.hpp"
 #include <istream>
 #include <vector>
+#include <array>
 
 namespace tools {
     
@@ -76,7 +77,7 @@ namespace tools {
      @param buf_len length of the hash buffer (=> must be a multiple of 32)
      @param root_hash where to store the root hash (32 bytes, needs to be allocated beforehand!)
      */
-    int tree_hash(const unsigned char *hash_buffer, size_t buf_len, unsigned char *root_hash);
+    int tree_hash(const std::vector<unsigned char> & hash_vect, std::array<unsigned char, HASH_SIZE> & root_hash);
 }
 
 #endif /* tools_hpp */

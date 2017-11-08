@@ -149,40 +149,34 @@ void tools::hash(const unsigned char *input, size_t input_byte_len, unsigned cha
     Keccak(rate, capacity, input, input_byte_len, delimited_suffix, output, output_length);
 }
 
-int tools::tree_hash(const unsigned char * hash_buffer, size_t buf_len, unsigned char *root_hash) {
-    
-    // Check for null in/out buffers
-    if (!hash_buffer || !root_hash || hash_buffer == nullptr || root_hash == nullptr) {
-        std::cerr << "TreeHash: Uninitialized in or out buffer." << std::endl;
-        return ERR_THASH_NULL_INPUT;
-    }
+int tools::tree_hash(const std::vector<unsigned char> & hash_vect, std::array<unsigned char, HASH_SIZE> & root_hash) {
     
     // Check buf_len
     // - each hash is 32 bytes-long => buf_len must be a multiple of 32
-    if (buf_len <= 0 || buf_len % 32 != 0) {
+    if (hash_vect.size() == 0 || hash_vect.size() % 32 != 0) {
         std::cerr << "TreeHash: Invalid input length." << std::endl;
         return ERR_THASH_INVALID_IN_LEN;
     }
         
     // Calculate the hash count and check it for sanity
     // - bound of 0x10000000 is included in the original Monero function
-    size_t hash_count = buf_len / 32;
-    if (hash_count <= 0 || hash_count > 0x10000000) {
+    size_t hash_count = hash_vect.size() / 32;
+    if (hash_count == 0 || hash_count > 0x10000000) {
         std::cerr << "TreeHash: Invalid input length." << std::endl;
         return ERR_THASH_INVALID_IN_LEN;
     }
     
-    // Reintepret the hash_buffer as array of 32 byte-long hashes
-    const unsigned char (* hashes) [HASH_SIZE] = reinterpret_cast<const unsigned char (*)[32]>(hash_buffer);
+    // Reintepret the hash_vect as array of 32 byte-long hashes
+    const unsigned char (* hashes) [HASH_SIZE] = reinterpret_cast<const unsigned char (*)[32]>(hash_vect.data());
     
     switch (hash_count) {
         case 1:
             // Just copy the single hash into the root_hash
-            memcpy(root_hash, hashes, HASH_SIZE);
+            memcpy(&root_hash[0], hashes, HASH_SIZE);
             return OK;
         case 2:
             // Just hash the two hashes and put the result into root_hash
-            hash(hashes[0], 2 * HASH_SIZE, root_hash);
+            hash(hashes[0], 2 * HASH_SIZE, &root_hash[0]);
             return OK;
             
         default:
@@ -197,13 +191,10 @@ int tools::tree_hash(const unsigned char * hash_buffer, size_t buf_len, unsigned
             // Initialize the tree nodes
             unsigned char (*nodes)[HASH_SIZE];
             size_t nodes_size = int_nodes_count * HASH_SIZE;
-            nodes = reinterpret_cast<unsigned char (*)[32]>(new(std::nothrow) unsigned char[nodes_size]);
-            if (nodes == nullptr) {
-                std::cerr << "TreeHash: Out of memory." << std::endl;
-                return ERR_THASH_OUT_OF_MEM;
-            }
-            
-            memset(nodes, 0, nodes_size);
+            std::vector<unsigned char> nodes_vect;
+            nodes_vect.resize(nodes_size, 0x00);
+            // Reinterpret the data as array of 32 bit arrays
+            nodes = reinterpret_cast<unsigned char (*)[32]>(nodes_vect.data());
             
             // We rarely have exactly 2^x leaves (= hashes)
             // => some do not have a partner for hashing in the lowest layer
@@ -238,10 +229,8 @@ int tools::tree_hash(const unsigned char * hash_buffer, size_t buf_len, unsigned
             
             // The last two hashes (= first two fields of ints)
             // are hashed and the result is put into the root hash
-            hash(nodes[0], 2 * HASH_SIZE, root_hash);
+            hash(nodes[0], 2 * HASH_SIZE, &root_hash[0]);
             
-            // Free the nodes array
-            delete [] nodes;
             return OK;
     }
 }

@@ -1,3 +1,11 @@
+# Avery simple fuzzer using Radamsa
+#
+# Usage:
+#  1. compile radamsa and point to it below
+#  2. set number of rounds
+#  3. (optional) set block template below
+#  4. profit
+
 import os
 import subprocess
 

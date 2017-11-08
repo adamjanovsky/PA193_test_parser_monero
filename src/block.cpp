@@ -289,8 +289,8 @@ int Block::get_block_hash(unsigned char * hash) {
     all_hashes_vect.insert(all_hashes_vect.end(), &tx_hashes[0], &tx_hashes[tx_hashes_count * HASH_SIZE]);
 
     // get the tree root hash
-    unsigned char tree_root_hash[HASH_SIZE];
-    tools::tree_hash(all_hashes_vect.data(), all_hashes_vect.size(), tree_root_hash);
+    std::array<unsigned char, HASH_SIZE> tree_root_hash;
+    tools::tree_hash(all_hashes_vect, tree_root_hash);
 
     // blob that will be hashed to get the block hash
     std::vector<unsigned char>hashing_blob;
