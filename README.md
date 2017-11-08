@@ -26,7 +26,9 @@ The hash of the block contains the following:
 
 1. Whole block header is contained in the hash, denoted `BH`, the block header consists of `minor_version || major_version || timestamp || prev_id || nonce`. All of those, except the `prev_id` are varints. The `prev_id` is the hash of the previous block
 2. Miner_tx is parsed into the block. It contains `version || unlock || number of inputs || type of the input transaction || input transactions || num of the output transactions || output transactions || num of extras || extras || (if version 2, then 0x00)`
-
+3. In step 2, several checks are performed. Transaction is discarded if it is not of version 1 or 2. Further, there must be a single input. The input must be of specific type (see code).
+4. Then hashes of transactions are added to the hashing contents. Those contain varint specifying number of hashes and then the corresponding hashes, i.e. `num_of_hashes || hash_1 || hash_2 || ... || hash_n`.
+5. Block header, miner_tx and transaction hashes are appended together and hashed. Some bytes may be skipped (depending on the version of miner_tx etc...).
 
 ## Notes on Testing
 
