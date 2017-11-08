@@ -15,6 +15,10 @@
 
 // # Tools
 
+// Expect byte
+#define ERR_EXPBT_DOES_NOT_MATCH    -1
+#define ERR_EXPBT_UNEXPECTED_EOF    -2
+
 // Read varint errors
 #define ERR_READV_OVERFLOW          -1
 #define ERR_READV_UNEXPECTED_EOF    -2

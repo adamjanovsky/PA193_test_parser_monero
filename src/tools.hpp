@@ -17,6 +17,15 @@
 namespace tools {
     
     /**
+     Read a byte in the stream and check that it matches the expected value.
+
+     @param in stream to read from
+     @param expected_byte expected value of the next bute
+     @return 0 if ok, neg otherwise
+     */
+    int expect_byte(std::istream & in, unsigned char expected_byte);
+    
+    /**
      Serialize varint to a vector (append the bytes)
 
      @param out_vect push back the bytes to this vect
@@ -49,7 +58,7 @@ namespace tools {
      @param length how many bytes to skip
      @return length if ok, negative val if error
      */
-    int skip_bytes(std::istream & in, int length);
+    int skip_bytes(std::istream & in, unsigned int length);
     
     /**
      Executes Keccak hash function with parameters extracted from monero.

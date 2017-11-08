@@ -16,6 +16,27 @@
 
 namespace {
     
+    // Expect byte
+    TEST(ExpectByte, HandlesCorrectInput) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x05);
+        
+        ASSERT_EQ(OK, tools::expect_byte(ss, 0x05));
+    }
+    
+    TEST(ExpectByte, HandlesIncorrectInput) {
+        std::stringstream ss;
+        ss  << static_cast<unsigned char>(0x05);
+        
+        ASSERT_EQ(ERR_EXPBT_DOES_NOT_MATCH, tools::expect_byte(ss, 0x01));
+    }
+    
+    TEST(ExpectByte, ExitsOnEOF) {
+        std::stringstream ss;
+        
+        ASSERT_EQ(ERR_EXPBT_UNEXPECTED_EOF, tools::expect_byte(ss, 0x05));
+    }
+    
     // Write varint
     // expected values are taken from original Monero code.
 

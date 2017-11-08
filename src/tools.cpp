@@ -15,6 +15,27 @@
 #include "error.hpp"
 
 
+int tools::expect_byte(std::istream & in, unsigned char expected_byte) {
+    unsigned char c;
+    in.read(reinterpret_cast<char *>(&c), 1);
+    
+    // Check for EOF
+    if (!in.good()) {
+        std::cerr << "Expect byte: Unexpected end of stream." << std::endl;
+        return ERR_EXPBT_UNEXPECTED_EOF;
+    }
+    
+    // Check for EOF
+    if (c != expected_byte) {
+        std::cerr << "Expect byte: Input " << std::hex << c;
+        std::cerr << std::dec << " does not match expected input ";
+        std::cerr << std::hex << expected_byte << std::dec << "." << std::endl;
+        return ERR_EXPBT_DOES_NOT_MATCH;
+    }
+    
+    return OK;
+}
+
 int tools::write_varint(std::vector<unsigned char> & out_vect, unsigned long val) {
     
     unsigned char c;
@@ -103,7 +124,7 @@ int tools::skip_varint(std::istream & in) {
     return bytes_skipped;
 }
 
-int tools::skip_bytes(std::istream & in, int length) {
+int tools::skip_bytes(std::istream & in, unsigned int length) {
     if (length <= 0) {
         std::cerr << "Skip bytes: Invalid length." << std::endl;
         return ERR_SKIPB_INVALID_LENGTH;
