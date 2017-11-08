@@ -108,23 +108,14 @@ int Block::load_header(ifstream & in) {
     return OK;
 }
 
-int Block::load_miner_tx(ifstream & in)
-{
+int Block::load_miner_tx(ifstream & in) {
     long long start_pos = in.tellg();
 
-    if(!in.good())
-    {
-        std::cerr << "Transaction parser: The input stream is not in good state" << std::endl;
-        return ERR_TRANS_PARSER_ERROR;
-    }
-
     in.read((char *) & this->miner_tx_version, 1);
-    if(this->miner_tx_version != 0x01 and this->miner_tx_version != 0x02)
-    {
+    if(this->miner_tx_version != 0x01 and this->miner_tx_version != 0x02) {
         std::cerr << "Transaction parser: Wrong version of transaction" << std::endl;
         return ERR_TRANS_CORRUPTED_FORMAT;
     }
-
 
     // read and store miner_tx version
 
@@ -198,9 +189,7 @@ int Block::load_miner_tx(ifstream & in)
     return OK;
 }
 
-int Block::load_tx_hashes(ifstream & in)
-{
-
+int Block::load_tx_hashes(ifstream & in) {
     // Read count of tx hashes
     if (tools::read_varint(in, tx_hashes_count) < 0) {
         std::cerr << "Tx hashes: could not read count of hashes." << std::endl;
