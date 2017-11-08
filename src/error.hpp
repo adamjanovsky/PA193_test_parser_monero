@@ -62,4 +62,11 @@
 
 
 
+// # Parser
+
+#define ERR_PARSER_FAILED_TO_VALIDATE   -1
+#define ERR_PARSER_FAILED_TO_CLEAR      -2
+#define ERR_PARSER_FAILED_TO_INIT       -3
+
+
 #endif /* error_h */

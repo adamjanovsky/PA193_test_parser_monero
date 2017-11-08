@@ -89,7 +89,7 @@ public:
 
      @return previous block id (hash)
      */
-    const unsigned char * extract_prev_id() {
+    const unsigned char * get_prev_id() {
         return prev_id;
     }
     
