@@ -62,8 +62,9 @@
 #define ERR_BL_INIT_FILE_ERROR      -4
 
 // Hash block
-#define ERR_BL_HASH_OUT_OF_MEM      -1
-
+#define ERR_BL_HASH_OUT_OF_MEM          -1
+#define ERR_BL_HASH_TRANS_WRONG_VERSION -2
+#define ERR_BL_HASH_MINER_TX_FAIL       -3
 
 
 // # Parser
