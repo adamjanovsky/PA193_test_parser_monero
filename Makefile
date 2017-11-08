@@ -3,7 +3,7 @@ TARGET = bin/parser
 TEST_DIR = test
 
 $(TARGET): $(SRC)
-	g++ -o $(TARGET) $(SRC)
+	g++ -std=c++11 -o $(TARGET) $(SRC)
 
 clean:
 	rm -f $(TARGET)
