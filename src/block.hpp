@@ -36,11 +36,14 @@ class Block {
     unsigned char * miner_tx;
     // Size of miner transaction
     size_t miner_tx_length;
+    // version of miner_tx
+    unsigned int miner_tx_version;
     
     // Transaction hashes
     unsigned char * tx_hashes;
     // Count of transaction hashes
     unsigned long tx_hashes_count;
+
 
     /**
      Examines the header of the block, loads it into the block_header, extracts hash to prev_id and save the header length to block_header_length.
@@ -63,6 +66,13 @@ class Block {
      * @return 0 if ok, neg if not
      */
     int load_tx_hashes(ifstream & in);
+
+    /**
+     * @brief get_miner_tx_hash computes the hash of the transaction based on its version and copies it into unsigned array hash
+     * @param hash - the unsigned array to store the result into
+     * @return 0 if ok, neg if not
+     */
+    int get_miner_tx_hash(unsigned char * hash);
     
 public:
     
@@ -73,6 +83,7 @@ public:
     block_header_length(0),
     miner_tx(nullptr),
     miner_tx_length(0),
+    miner_tx_version(0),
     tx_hashes(nullptr),
     tx_hashes_count(0) {};
     
@@ -92,6 +103,8 @@ public:
     const unsigned char * get_prev_id() {
         return prev_id;
     }
+
+
     
     /**
      Calculate and return hash of this block
