@@ -1,9 +1,11 @@
-SRC = main.cpp
+SRC = main.cpp src/*.cpp src/keccak/*.c
 TARGET = bin/parser
 TEST_DIR = test
 
 $(TARGET): $(SRC)
-	g++ -std=c++11 -o $(TARGET) $(SRC)
+	g++ -std=c++11 $(SRC)
+	rm src/*.gch
+	mv a.out $(TARGET)
 
 clean:
 	rm -f $(TARGET)
