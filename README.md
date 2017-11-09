@@ -12,9 +12,11 @@ The input for the program are two binary files containing two consecutive blocks
 
 ## Compilation
 
-`git clone https://github.com/adamjanovsky/PA193_test_parser_monero.git`
-`cd PA193_test_parser_monero`
-`make`
+```
+git clone https://github.com/adamjanovsky/PA193_test_parser_monero.git
+cd PA193_test_parser_monero
+make
+```
 
 ## How it works
 
