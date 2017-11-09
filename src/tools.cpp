@@ -25,7 +25,7 @@ int tools::expect_byte(std::istream & in, unsigned char expected_byte) {
         return ERR_EXPBT_UNEXPECTED_EOF;
     }
     
-    // Check for EOF
+    // Check the value
     if (c != expected_byte) {
         std::cerr << "Expect byte: Input " << std::hex << c;
         std::cerr << std::dec << " does not match expected input ";
