@@ -10,6 +10,12 @@ The document specifies the program that was created as a project to PA193 at FI 
 
 The input for the program are two binary files containing two consecutive blocks. First binary file shall contain the block presented lower in the blockchain, thus the block being validated. The second file should contain the higher block in the blockchain, containg the hash of the previous block. The program treats both blocks the same way, parses them into object. Then functions are called on the objects that compare the corresponding hashes (the one computed vs. the one derived from raw block data).
 
+## Compilation
+
+`git clone https://github.com/adamjanovsky/PA193_test_parser_monero.git`
+`cd PA193_test_parser_monero`
+`make`
+
 ## How it works
 
 The following paragraph describes the actions program takes in order to verify the validity of blocks. The current state of code assumes usage as a command line tool. One provides two command line arguments (lower block filepath and higher block filepath). The program creates object Parser, that creates two blocks. The parser object commands the blocks to parse itself and then the parser can call functions in order to obtain the needed hashes. Finally, the parser compares the hashes and prints the output.
