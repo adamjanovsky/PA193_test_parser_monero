@@ -45,3 +45,7 @@ The hash of the block contains the following:
 - there is a Makefile in `test` dir as well
   - but no need to use it directly (it is called from the main Makefile)
   - this one just needs to be editted when a new test is created
+  
+ ## Links
+ 
+ - [Output from Travis CI](https://travis-ci.org/adamjanovsky/PA193_test_parser_monero)
