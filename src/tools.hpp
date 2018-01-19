@@ -24,6 +24,7 @@ namespace tools {
      * @return - 0 if ok, neg otherwise
      */
     int expect_byte(std::istream & in, unsigned char expected_byte);
+    int expect_byte_2(std::istream & in, unsigned char expected_byte);
     
     /**
      * @brief - Serialize varint to a vector (append the bytes)

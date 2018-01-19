@@ -14,7 +14,6 @@
 #include "hash.hpp"
 #include "error.hpp"
 
-
 int tools::expect_byte(std::istream & in, unsigned char expected_byte) {
     unsigned char c;
     in.read(reinterpret_cast<char *>(&c), 1);
@@ -30,6 +29,24 @@ int tools::expect_byte(std::istream & in, unsigned char expected_byte) {
         std::cerr << "Expect byte: Input " << std::hex << c;
         std::cerr << std::dec << " does not match expected input ";
         std::cerr << std::hex << expected_byte << std::dec << "." << std::endl;
+        return ERR_EXPBT_DOES_NOT_MATCH;
+    }
+    
+    return OK;
+}
+
+int tools::expect_byte_2(std::istream & in, unsigned char expected_byte) {
+    unsigned char c;
+    in.read(reinterpret_cast<char *>(&c), 1);
+    
+    // Check for EOF
+    if (!in.good()) {
+        std::cerr << "Expect byte: Unexpected end of stream." << std::endl;
+        return ERR_EXPBT_UNEXPECTED_EOF;
+    }
+    
+    // Check the value
+    if (c != expected_byte) {
         return ERR_EXPBT_DOES_NOT_MATCH;
     }
     

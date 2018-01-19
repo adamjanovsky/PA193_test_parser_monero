@@ -26,6 +26,19 @@ int Block::get_prev_id(hash::hash_t & prev_id_copy) const {
 }
 
 int Block::init_from_file(string filename) {
+    
+    // First check the file size
+    FILE *p_file = NULL;
+    p_file = fopen(filename.c_str(),"rb");
+    fseek(p_file,0,SEEK_END);
+    int size = ftell(p_file);
+    fclose(p_file);
+    std::cout<<"File size (in bytes): " << size << std::endl;
+    if(size > 3000){
+        std::cout << "Couldn not be a block" << std::endl;
+        return ERR_BL_INIT_FILE_ERROR;
+    }
+   
     // Set init to false to be sure the block stays unitialized if we encounter an error in the middle of init
     initialized = false;
     
@@ -66,16 +79,83 @@ int Block::init_from_file(string filename) {
 int Block::load_header(ifstream & in) {
     // To be sure, move to the beginning of the stream
     in.seekg(in.beg);
+    
+    // The first byte (major version) is 1 or 2
+    int expected_res = 0;
+    
+    // If the first byte (major version) is 1, the second byte (minor version) should be 0, 1 or 2
+    
+    // Check if major.minor is 1.0
+    if (tools::expect_byte_2(in, 0x01) == 0 and
+        tools::expect_byte_2(in, 0x00) == 0){
+        std::cout << "major.minor version is: 1.0" << std::endl;
+        expected_res ++;
+    }
+    
+    // Check if major.minor is 1.1
+    in.seekg(in.beg);
+    if (tools::expect_byte_2(in, 0x01) == 0 and
+        tools::expect_byte_2(in, 0x01) == 0){
+        std::cout << "major.minor version is: 1.1" << std::endl;
+        expected_res ++;
+    }
 
-    // Skip the three varints at the beginning
-    // (major version, minor version, timestamp)
+    // Check if major.minor is 1.2
+    in.seekg(in.beg);
+    if (tools::expect_byte_2(in, 0x01) == 0 and
+        tools::expect_byte_2(in, 0x02) == 0){
+        std::cout << "major.minor version is: 1.2" << std::endl;
+        expected_res ++;
+    }
+    
+    // If the first byte (major version) is 2, the second byte (minor version) should be 0, 1, 2 or 3
+    // Check if major.minor is 2.0
+    in.seekg(in.beg);
+    if (tools::expect_byte_2(in, 0x02) == 0 and
+        tools::expect_byte_2(in, 0x00) == 0){
+        std::cout << "major.minor version is: 2.0" << std::endl;
+        expected_res ++;
+    }
+    
+    // Check if major.minor is 2.1
+    in.seekg(in.beg);
+    if (tools::expect_byte_2(in, 0x02) == 0 and
+        tools::expect_byte_2(in, 0x01) == 0){
+        std::cout << "major.minor version is: 2.1" << std::endl;
+        expected_res ++;
+    }
+
+    // Check if major.minor is 2.2
+    in.seekg(in.beg);
+    if (tools::expect_byte_2(in, 0x02) == 0 and
+        tools::expect_byte_2(in, 0x02) == 0){
+        std::cout << "major.minor version is: 2.2" << std::endl;
+        expected_res ++;
+    }
+    
+    // Check if major.minor is 2.3
+    in.seekg(in.beg);
+    if (tools::expect_byte_2(in, 0x02) == 0 and
+        tools::expect_byte_2(in, 0x03) == 0){
+        std::cout << "major.minor version is: 2.3" << std::endl;
+        expected_res ++;
+    }
+    
+    // If none of them holds, then the block header has an invalid format
+    if(expected_res != 1){
+        std::cerr << "Block header: Invalid format." << std::endl;
+        return ERR_BL_LOADHDR_INVALID_FORMAT;
+    }
+    
+    // Skip the first three bytes
+    in.seekg(in.beg);
     for (int i = 0; i < 3; i++) {
         if (tools::skip_varint(in) < 0) {
             std::cerr << "Block header: Invalid format." << std::endl;
             return ERR_BL_LOADHDR_INVALID_FORMAT;
         }
     }
-
+    
     // Alloc and load the hash
     in.read(reinterpret_cast<char *>(&prev_id[0]), prev_id.size());
     if (!in.good()) {
